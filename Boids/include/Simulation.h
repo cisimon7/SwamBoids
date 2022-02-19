@@ -1,6 +1,6 @@
-//
-// Created by Ryan Strauss on 12/10/19.
-//
+/*
+ * Created by Ryan Strauss on 12/9/19.
+ * */
 
 #ifndef BOIDS_SIMULATION_H
 #define BOIDS_SIMULATION_H
@@ -13,7 +13,6 @@
 
 class Simulation {
 private:
-
     sf::RenderWindow window;
     int window_width, window_height;
     Flock flock;
@@ -54,6 +53,8 @@ public:
     constexpr static float DEFAULT_SEPARATION_DISTANCE = 20;
 
     constexpr static float DEFAULT_NOISE_SCALE = 0;
+
+    void (*frame_update)() = []() {};
 
     Simulation(int window_width, int window_height, float boid_size, float max_speed, float max_force,
                float alignment_weight,

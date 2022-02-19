@@ -1,6 +1,6 @@
-//
-// Created by Ryan Strauss on 12/10/19.
-//
+/*
+ * Created by Ryan Strauss on 12/9/19.
+ * */
 
 #ifndef BOIDS_FLOCK_H
 #define BOIDS_FLOCK_H

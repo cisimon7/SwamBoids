@@ -39,3 +39,27 @@ pybind11_add_module(
 target_include_directories(SimulationModule PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(SimulationModule PUBLIC ${BOID_LIB} sfml-graphics sfml-window sfml-system ${OPEN_MP_LIB})
 set_target_properties(SimulationModule PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_DIR}/bindings)
+
+pybind11_add_module(
+        KDTreeModule
+        ${BOIDS_DIR}/pybinds/KDTreeModule.cpp
+)
+target_include_directories(KDTreeModule PUBLIC ${INCLUDE_DIRS})
+target_link_libraries(KDTreeModule PUBLIC ${BOID_LIB} sfml-graphics sfml-window sfml-system ${OPEN_MP_LIB})
+set_target_properties(KDTreeModule PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_DIR}/bindings)
+
+pybind11_add_module(
+        FlockModule
+        ${BOIDS_DIR}/pybinds/FlockModule.cpp
+)
+target_include_directories(FlockModule PUBLIC ${INCLUDE_DIRS})
+target_link_libraries(FlockModule PUBLIC ${BOID_LIB} sfml-graphics sfml-window sfml-system ${OPEN_MP_LIB})
+set_target_properties(FlockModule PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_DIR}/bindings)
+
+pybind11_add_module(
+        BoidModule
+        ${BOIDS_DIR}/pybinds/BoidModule.cpp
+)
+target_include_directories(BoidModule PUBLIC ${INCLUDE_DIRS})
+target_link_libraries(BoidModule PUBLIC ${BOID_LIB} sfml-graphics sfml-window sfml-system ${OPEN_MP_LIB})
+set_target_properties(BoidModule PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_DIR}/bindings)

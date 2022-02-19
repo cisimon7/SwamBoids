@@ -65,7 +65,7 @@ struct set_caster {
             if (!conv.load(entry, convert)) {
                 return false;
             }
-            value.insert(cast_op<Key &&>(std::move(conv)));
+            value.insert_(cast_op<Key &&>(std::move(conv)));
         }
         return true;
     }

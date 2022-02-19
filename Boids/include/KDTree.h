@@ -33,11 +33,11 @@ private:
     Node::NodePtr root;
 
     /* Builds the Boid KDTree Structure */
-    Node::NodePtr insert(const Node::NodePtr &node, Boid *boid, bool vertical);
+    Node::NodePtr insert_(const Node::NodePtr &node, Boid *boid, bool vertical);
 
     /**
      * Search for boids [query] to a given [node] within a given radius and store in [results]  */
-    void search(Boid *query, double radius, const Node::NodePtr &node, std::vector<Boid *> &results) const;
+    void search_(Boid *query, double radius, const Node::NodePtr &node, std::vector<Boid *> &results) const;
 
 public:
     KDTree(float width, float height);

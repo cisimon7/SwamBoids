@@ -11,12 +11,16 @@
 class Boid {
 private:
     constexpr static float PREDATOR_ESCAPE_FACTOR = 10000000;
-
     constexpr static float PREDATOR_SPEED_BOOST = 1.8;
     constexpr static float PREDATOR_PERCEPTION_BOOST = 1.5;
     constexpr static float PREDATOR_ACCELERATION_BOOST = 1.4;
 
 public:
+    /**
+     * [cohesion_weight]: degree of randomness in movement of boid
+     * [alignment_weight]: unity in movement of boids in a group
+     * [separation_weight]: distance to maintain between boids in a group
+     * */
     Vector2D position, velocity, acceleration;
     float max_width, max_height;
     float max_speed, max_force;

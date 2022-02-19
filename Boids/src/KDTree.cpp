@@ -28,7 +28,7 @@ KDTree::KDTree(float width, float height) {
 
 /* Takes a boid and makes a Leaf Node to be added to the KDTree at depth K */
 /*TODO(I wonder if this is a correct implementation of a KDTree Structure)*/
-Node::NodePtr KDTree::insert(const Node::NodePtr &node, Boid *boid, bool vertical) {
+Node::NodePtr KDTree::insert_(const Node::NodePtr &node, Boid *boid, bool vertical) {
 
     /* Function travers down the KDTree until it gets to depth K signified by [node] being [nullptr],
      * A Leaf Node is created at this point and added to the KDTree via recursion. */
@@ -38,9 +38,9 @@ Node::NodePtr KDTree::insert(const Node::NodePtr &node, Boid *boid, bool vertica
 
     if ((node->vertical && boid->position.x < node->boid->position.x) ||
         (!node->vertical && boid->position.y < node->boid->position.y)) {
-        node->left = insert(node->left, boid, !node->vertical);
+        node->left = insert_(node->left, boid, !node->vertical);
     } else {
-        node->right = insert(node->right, boid, !node->vertical);
+        node->right = insert_(node->right, boid, !node->vertical);
     }
 
     /* Returns the Node after appending Leaf Node at depth K. */
@@ -49,7 +49,7 @@ Node::NodePtr KDTree::insert(const Node::NodePtr &node, Boid *boid, bool vertica
 
 /* Takes a boid and adds it to root KDTree at depth K */
 void KDTree::insert(Boid *boid) {
-    root = insert(root, boid, true);
+    root = insert_(root, boid, true);
 }
 
 /* Euclidean distance between [boid] and boid at [node]. */
@@ -59,7 +59,7 @@ double distance2(const Boid *boid, const Node::NodePtr &node) {
 }
 
 /* Finds all the boids within a given radius */
-void KDTree::search(Boid *query, double radius, const Node::NodePtr &node, std::vector<Boid *> &results) const {
+void KDTree::search_(Boid *query, double radius, const Node::NodePtr &node, std::vector<Boid *> &results) const {
     double w = query->position.toroidal_distance2(node->boid->position, this->width, this->height);
 
     /* If node is a LEAF and node boid is within distance, add to result and return */
@@ -84,37 +84,37 @@ void KDTree::search(Boid *query, double radius, const Node::NodePtr &node, std::
             /* (qx - r) <= nx <= (qx + r) */
             //TODO(nx is already greater than qx, hence [qx - radius <= nx] will always be true)
             if (qx - radius <= nx && node->left != nullptr) {
-                search(query, radius, node->left, results);
+                search_(query, radius, node->left, results);
             }
             if (qx + radius > nx && node->right != nullptr) {
-                search(query, radius, node->right, results);
+                search_(query, radius, node->right, results);
                 return;
             }
         } else {
             //TODO(already qx >= nx, so qx + radius is definitely nx)
             if (qx + radius > nx && node->right != nullptr) {
-                search(query, radius, node->right, results);
+                search_(query, radius, node->right, results);
             }
             if (qx - radius <= nx && node->left != nullptr) {
-                search(query, radius, node->left, results);
+                search_(query, radius, node->left, results);
                 return;
             }
         }
     } else {
         if (qy < ny) {
             if (qy - radius <= ny && node->left != nullptr) {
-                search(query, radius, node->left, results);
+                search_(query, radius, node->left, results);
             }
             if (qy + radius > ny && node->right != nullptr) {
-                search(query, radius, node->right, results);
+                search_(query, radius, node->right, results);
                 return;
             }
         } else {
             if (qy + radius > ny && node->right != nullptr) {
-                search(query, radius, node->right, results);
+                search_(query, radius, node->right, results);
             }
             if (qy - radius <= ny && node->left != nullptr) {
-                search(query, radius, node->left, results);
+                search_(query, radius, node->left, results);
                 return;
             }
         }
@@ -123,6 +123,6 @@ void KDTree::search(Boid *query, double radius, const Node::NodePtr &node, std::
 
 std::vector<Boid *> KDTree::search(Boid *query, double radius) const {
     std::vector<Boid *> results;
-    search(query, radius, root, results);
+    search_(query, radius, root, results);
     return results;
 }

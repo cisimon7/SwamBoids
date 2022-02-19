@@ -6,8 +6,7 @@
 
 #include <random>
 #include <omp.h>
-#include <iostream>
-#include "../include/Simulation.h"
+#include <Simulation.h>
 
 
 Simulation::Simulation(int window_width, int window_height, float boid_size, float max_speed, float max_force,
@@ -34,8 +33,11 @@ Simulation::Simulation(int window_width, int window_height, float boid_size, flo
 
 Simulation::~Simulation() = default;
 
+//TODO(May need to pass gym environment here for the purpose of rendering)
+//TODO(Should receive an update from gym environment on what to do)
 void Simulation::run(int flock_size) {
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
+
     if (this->fullscreen) {
         window.create(sf::VideoMode(desktop.width, desktop.height, desktop.bitsPerPixel), "Boids",
                       sf::Style::Fullscreen);

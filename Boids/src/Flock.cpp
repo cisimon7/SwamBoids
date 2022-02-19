@@ -25,6 +25,8 @@ void Flock::clear() {
     boids.clear();
 }
 
+
+//TODO(How to parallelize this in python and at the same time make use of the KDTree structure)
 void Flock::update(float window_width, float window_height, int num_threads) {
     KDTree tree(window_width, window_height);
     for (Boid &b: boids) tree.insert(&b);
