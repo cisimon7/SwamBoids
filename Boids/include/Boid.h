@@ -1,6 +1,6 @@
-//
-// Created by Ryan Strauss on 12/9/19.
-//
+/*
+ * Created by Ryan Strauss on 12/9/19.
+ * */
 
 #ifndef BOIDS_BOID_H
 #define BOIDS_BOID_H

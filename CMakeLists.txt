@@ -39,9 +39,3 @@ pybind11_add_module(
 target_include_directories(SimulationModule PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(SimulationModule PUBLIC ${BOID_LIB} sfml-graphics sfml-window sfml-system ${OPEN_MP_LIB})
 set_target_properties(SimulationModule PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_DIR}/bindings)
-
-#[[pybind11_add_module(
-        Geometry
-        ${BOIDS_DIR}/pybinds/Geometry.cpp
-)
-set_target_properties(Geometry PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_DIR}/bindings)]]
