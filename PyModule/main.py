@@ -1,4 +1,5 @@
 from binaries import Simulation
+from binaries import Flock
 
 if __name__ == '__main__':
     simulation = Simulation(
@@ -17,8 +18,21 @@ if __name__ == '__main__':
         fullscreen=False,
         light_scheme=True,
         num_threads=-1,
+        frame_rate=60
     )
 
-    simulation.flock()
+    flock: Flock = simulation.flock  # Casting as Flock
+    shapes = simulation.shapes
 
-    simulation.run(flock_size=150)
+    print(shapes)
+
+
+    def on_each_frame():
+        # print("Hello Python")
+        if flock.size() > 100:
+            flock.clear()
+            simulation.shapes = []
+        print(flock.size())
+
+
+    simulation.run(flock_size=10, on_frame=on_each_frame)

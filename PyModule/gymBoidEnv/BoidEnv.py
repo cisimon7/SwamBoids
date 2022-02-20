@@ -1,6 +1,6 @@
+from gym import Env
 from typing import Tuple
-from gym import Env, register
-from EnvStructs import BoidAction, BoidObs
+from EnvStructs import ActionBoid, ObsBoid
 from ..binaries import Simulation, Flock, Boid, KDTree
 
 FRAME_RATE = 60
@@ -19,7 +19,7 @@ class SwamBoidsEnv(Env):
 
     def set_flock(self, flock: Flock): self.simulation.flock = flock
 
-    def step(self, action: BoidAction) -> Tuple[BoidObs, float, bool, dict]:
+    def step(self, action: ActionBoid) -> Tuple[ObsBoid, float, bool, dict]:
         """
             Run one time step of the environment's dynamics.
             Args:
@@ -38,11 +38,11 @@ class SwamBoidsEnv(Env):
         # TODO(How should cohesion, alignment and separation affect reward)
         # TODO(Done is currently set to false as there is no end to the life of the agent - boid)
         info = dict()
-        return BoidObs(), 0.0, False, info
+        return ObsBoid(), 0.0, False, info
 
     def reset(self):
         self.simulation = new_simulation_env(FRAME_RATE)
-        return BoidObs()
+        return ObsBoid()  # Returns initial Observation for a boid
 
     def render(self, mode="human"):
         if mode != 'human':
@@ -50,18 +50,13 @@ class SwamBoidsEnv(Env):
 
         # TODO(Pass flock to simulation, call sfml clear screen and call on draw for new boid positions)
         self.simulation.run(
-            step_render=self.step_render,
-            flock_size=0
+            flock_size=0,
+            on_frame=self.step_render
         )
 
     def step_render(self):
+        # TODO(Update simulation flocks)
         pass
-
-
-register(
-    id='SwamBoidsEnv-v0',
-    entry_point='PyModule.gymEnv:SwamBoidsEnv'
-)
 
 
 def new_simulation_env(frame_rate: int):

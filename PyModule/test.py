@@ -1,5 +1,5 @@
 import gym
-from gymBoidEnv import SwamBoidsEnv, BoidObs, BoidEnv
+from gymBoidEnv import SwamBoidsEnv, ObsBoid, BoidEnv
 
 env = gym.make('SwamBoidsEnv-v0')
 for i_episode in range(20):

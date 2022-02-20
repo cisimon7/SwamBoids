@@ -4,6 +4,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/functional.h>
 #include <Simulation.h>
 
 namespace py = pybind11;
@@ -16,13 +17,13 @@ PYBIND11_MODULE(SimulationModule, m) {
                             [](int window_width, int window_height, float boid_size, float max_speed, float max_force,
                                float alignment_weight, float cohesion_weight, float separation_weight,
                                float acceleration_scale, float perception, float separation_distance, float noise_scale,
-                               bool fullscreen, bool light_scheme, int num_threads) {
+                               bool fullscreen, bool light_scheme, int num_threads, int frame_rate) {
                                 return new Simulation(window_width, window_height, boid_size, max_speed, max_force,
                                                       alignment_weight,
                                                       cohesion_weight, separation_weight, acceleration_scale,
                                                       perception,
                                                       separation_distance, noise_scale, fullscreen, light_scheme,
-                                                      num_threads);
+                                                      num_threads, frame_rate);
                             }
                     ),
                     py::arg("window_width") = Simulation::DEFAULT_WINDOW_WIDTH,
@@ -39,9 +40,12 @@ PYBIND11_MODULE(SimulationModule, m) {
                     py::arg("noise_scale") = Simulation::DEFAULT_NOISE_SCALE,
                     py::arg("fullscreen") = false,
                     py::arg("light_scheme") = false,
-                    py::arg("num_threads") = -1
+                    py::arg("num_threads") = -1,
+                    py::arg("frame_rate") = 60
             )
-            .def("run", &Simulation::run, py::arg("flock_size"))
+            .def_property("flock", &Simulation::getFlock, &Simulation::setFlock)
+            .def_property("shapes", &Simulation::getShapes, &Simulation::setShapes)
+            .def("run", &Simulation::run, py::arg("flock_size"), py::arg("on_frame"))
             .def("benchmark", &Simulation::benchmark, py::arg("flock_size"), py::arg("num_steps"));
 
 }

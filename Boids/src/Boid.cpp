@@ -1,6 +1,7 @@
-//
-// Created by Ryan Strauss on 12/9/19.
-//
+/*
+ * Created by Ryan Strauss on 12/9/19.
+ * Extended by Simon Idoko on 20/02/22
+ * */
 
 #include <cmath>
 #include "../include/Boid.h"
@@ -53,8 +54,14 @@ Boid::~Boid() = default;
 
 Boid &Boid::operator=(const Boid &other) = default;
 
+/**
+ * Unit vector in direction of average direction (direction of each boid from vec position) of all boids */
 Vector2D Boid::alignment(const std::vector<Boid *> &boids) const {
-    Vector2D perceived_velocity;
+    /**
+     * return zero vector if no boids in reachability radius
+     * return unit vector in direction of perceived velocity
+     * perceived velocity is the average in each direction of the velocity vectors of all boids in reachability radius*/
+    Vector2D perceived_velocity; /** Default as zero vector */
     int n = 0;
 
     for (const Boid *b: boids) {
@@ -62,7 +69,7 @@ Vector2D Boid::alignment(const std::vector<Boid *> &boids) const {
             if (b->is_predator)
                 return Vector2D{};
 
-            perceived_velocity += b->velocity;
+            perceived_velocity += b->velocity; // Velocity a better measure of direction
             ++n;
         }
     }
@@ -75,10 +82,14 @@ Vector2D Boid::alignment(const std::vector<Boid *> &boids) const {
     return steer.normalize();
 }
 
+/**
+ * A unit vector from boid position to center of neighbor boids */
 Vector2D Boid::cohesion(const std::vector<Boid *> &boids) const {
-    Vector2D perceived_center;
+    Vector2D perceived_center; /** Default as zero vector */
     int n = 0;
 
+    /**
+     * If there is a predator within the reachability radius, return zero vector */
     for (const Boid *b: boids) {
         if (this != b) {
             if (b->is_predator)
@@ -89,25 +100,35 @@ Vector2D Boid::cohesion(const std::vector<Boid *> &boids) const {
         }
     }
 
+    /**
+     * No boids within reachability radius, return zero vector */
     if (n == 0)
         return Vector2D{};
 
+    /** average to find perceived centre */
     perceived_center /= n;
     Vector2D steer = perceived_center - position;
-    return steer.normalize();
+    return steer.normalize(); /** returns unit vector pointing in direction of perceived centre */
 }
 
 Vector2D Boid::separation(const std::vector<Boid *> &boids) const {
-    Vector2D c;
+    Vector2D c; /** Default as zero vector */
 
     for (const Boid *b: boids) {
         if (this != b) {
             if (!is_predator && b->is_predator) {
+                /**
+                 * A normal boid detects a predator within its reachability radius, boid should run away far as possible
+                 * return vector in direction opposite to predator with magnitude as large as possible
+                 * This would be limited by the presence of other boids of course, so full effect not see on render*/
                 return (b->position - position).normalize() * -PREDATOR_ESCAPE_FACTOR;
             } else if (is_predator == b->is_predator &&
                        position.toroidal_distance2(b->position, max_width, max_height) <
                        separation_distance * separation_distance) {
-                c -= b->position - position;
+                /**
+                 * A boid/predator detects it's fellow boid/predator and their distance is less than the separation distance
+                 * sum difference in their position and return its inverse. */
+                c -= b->position - position; /*This is same as summing all and then negating. Inverse proportionality*/
             }
         }
     }
@@ -117,9 +138,9 @@ Vector2D Boid::separation(const std::vector<Boid *> &boids) const {
 
 void Boid::update(const std::vector<Boid *> &boids) {
     // Apply each rule, get resulting forces, and weight them
-    Vector2D alignment_update = alignment(boids) * alignment_weight;
-    Vector2D cohesion_update = cohesion(boids) * cohesion_weight;
-    Vector2D separation_update = separation(boids) * separation_weight;
+    Vector2D alignment_update = alignment(boids) * alignment_weight; /** weighted step on unit velocity vector pointing to vel center*/
+    Vector2D cohesion_update = cohesion(boids) * cohesion_weight; /** weighted step on unit position vector pointing to pos center */
+    Vector2D separation_update = separation(boids) * separation_weight; /** weighted unit vector in direction to maximize distance between all neighboring boids*/
     // Apply the weighted forces to this boid
     acceleration += alignment_update + cohesion_update + separation_update;
     // Scale the acceleration then use it to update the velocity
@@ -129,7 +150,7 @@ void Boid::update(const std::vector<Boid *> &boids) {
     acceleration.limit(max_force);
     velocity += acceleration;
     if (noise_scale != 0)
-        velocity += (Vector2D::random() - 0.5) * noise_scale;
+        velocity += (Vector2D::random() - 0.5) * noise_scale; /** measuring velocity in reality is not perfect */
     // Limit the velocity so the boids don't get too fast
     velocity.limit(max_speed);
     // Then update the position based on the velocity

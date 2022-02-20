@@ -1,5 +1,6 @@
 /*
  * Created by Ryan Strauss on 12/9/19.
+ * Extended by Simon Idoko on 20/02/22
  * */
 
 #ifndef BOIDS_BOID_H
@@ -26,11 +27,10 @@ public:
     float max_speed, max_force;
     float acceleration_scale;
     float cohesion_weight, alignment_weight, separation_weight;
-    float perception, separation_distance;
+    float perception, separation_distance; /** Perception: Radius which boid can detect other objects*/
     float noise_scale;
     bool is_predator;
 
-    // Constructors
     Boid(float x, float y, float max_width, float max_height, float max_speed, float max_force,
          float acceleration_scale, float cohesion_weight, float alignment_weight, float separation_weight,
          float perception, float separation_distance, float noise_scale, bool is_predator = false);
@@ -39,10 +39,8 @@ public:
 
     ~Boid();
 
-    // Operators
     Boid &operator=(const Boid &other);
 
-    // Methods
     Vector2D alignment(const std::vector<Boid *> &boids) const;
 
     Vector2D cohesion(const std::vector<Boid *> &boids) const;
@@ -57,3 +55,5 @@ public:
 
 
 #endif //BOIDS_BOID_H
+
+/*https://medium.com/swlh/boids-a-simple-way-to-simulate-how-birds-flock-in-processing-69057930c229*/

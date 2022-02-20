@@ -1,6 +1,7 @@
-//
-// Created by Ryan Strauss on 6/30/20.
-//
+/*
+ * Created by Ryan Strauss on 12/9/19.
+ * Extended by Simon Idoko on 20/02/22
+ * */
 
 #ifndef BOIDS_KDTREE_H
 #define BOIDS_KDTREE_H
@@ -44,6 +45,8 @@ public:
 
     void insert(Boid *boid);
 
+    /**
+     * */
     std::vector<Boid *> search(Boid *query, double radius) const;
 };
 

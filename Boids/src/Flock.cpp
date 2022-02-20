@@ -1,6 +1,7 @@
-//
-// Created by Ryan Strauss on 12/10/19.
-//
+/*
+ * Created by Ryan Strauss on 12/9/19.
+ * Extended by Simon Idoko on 20/02/22
+ * */
 
 #include "../include/Flock.h"
 #include "../include/KDTree.h"
@@ -28,10 +29,18 @@ void Flock::clear() {
 
 //TODO(How to parallelize this in python and at the same time make use of the KDTree structure)
 void Flock::update(float window_width, float window_height, int num_threads) {
-    KDTree tree(window_width, window_height);
-    for (Boid &b: boids) tree.insert(&b);
+    /*
+     * TODO(
+     *    This Builds a KDTree structure every render step
+     *    This is because at each time step, the positions of the boids have changed and hence need for new KDTree
+     *    But can this be improved? Is there a better way?
+     * )
+     * */
+    KDTree tree(window_width, window_height); /*Creates a new KDTree from current positions of boids*/
+    for (Boid &b: boids) tree.insert(&b); /*Arranges the boids into a KDTree structure for faster distance searching*/
 
-    /* An array of boid arrays representing the boids close to a particular boid. */
+    /* An array of boid array representing the boids close to a particular boid. */
+    // TODO(I would use mapping in kotlin in this case to find for each boid, its circle of reach)
     std::vector<Boid *> search_results[boids.size()];
 
 #pragma omp parallel for schedule(dynamic) num_threads(num_threads) if (num_threads > 1)

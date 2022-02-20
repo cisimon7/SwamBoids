@@ -1,5 +1,6 @@
 /*
  * Created by Ryan Strauss on 12/9/19.
+ * Extended by Simon Idoko on 20/02/22
  * */
 
 #ifndef BOIDS_SIMULATION_H
@@ -26,22 +27,21 @@ private:
     float noise_scale;
     float boid_size;
     int num_threads;
+    int frame_rate;
 
     void add_boid(float x, float y, bool is_predator = false, bool with_shape = true);
 
-    void render();
+    void render(const std::function<void()>& on_frame);
 
     bool handle_input();
 
     float static get_random_float();
 
 public:
-    constexpr static int FRAME_RATE = 60;
-
     constexpr static float DEFAULT_BOID_SIZE = 4;
     constexpr static int DEFAULT_WINDOW_WIDTH = 1500;
     constexpr static int DEFAULT_WINDOW_HEIGHT = 900;
-    constexpr static int DEFAULT_FLOCK_SIZE = 150;
+    constexpr static int DEFAULT_FLOCK_SIZE = 50;
 
     constexpr static float DEFAULT_MAX_SPEED = 6;
     constexpr static float DEFAULT_MAX_FORCE = 1;
@@ -54,17 +54,25 @@ public:
 
     constexpr static float DEFAULT_NOISE_SCALE = 0;
 
-    void (*frame_update)() = []() {};
+    const Flock &getFlock() const;
+
+    void setFlock(const Flock &flock_);
+
+    const std::vector<sf::CircleShape> &getShapes() const;
+
+    void setShapes(const std::vector<sf::CircleShape> &shapes_);
+
+    std::function<void(float)> frame_update = [](float a) { };
 
     Simulation(int window_width, int window_height, float boid_size, float max_speed, float max_force,
                float alignment_weight,
                float cohesion_weight, float separation_weight, float acceleration_scale, float perception,
                float separation_distance, float noise_scale, bool fullscreen = false, bool light_scheme = false,
-               int num_threads = -1);
+               int num_threads = -1, int FRAME_RATE = 60);
 
     ~Simulation();
 
-    void run(int flock_size);
+    void run(int flock_size, std::function<void()> on_frame = [](){ });
 
     std::vector<double> benchmark(int flock_size, int num_steps);
 

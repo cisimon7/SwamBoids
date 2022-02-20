@@ -12,7 +12,7 @@
 Simulation::Simulation(int window_width, int window_height, float boid_size, float max_speed, float max_force,
                        float alignment_weight, float cohesion_weight, float separation_weight,
                        float acceleration_scale, float perception, float separation_distance, float noise_scale,
-                       bool fullscreen, bool light_scheme, int num_threads) {
+                       bool fullscreen, bool light_scheme, int num_threads, int FRAME_RATE) {
     this->window_width = window_width;
     this->window_height = window_height;
     this->boid_size = boid_size;
@@ -29,13 +29,14 @@ Simulation::Simulation(int window_width, int window_height, float boid_size, flo
     this->light_scheme = light_scheme;
     this->num_threads = num_threads < 0 ? omp_get_max_threads() : num_threads;
     this->num_threads = num_threads;
+    this->frame_rate = FRAME_RATE;
 }
 
 Simulation::~Simulation() = default;
 
 //TODO(May need to pass gym environment here for the purpose of rendering)
 //TODO(Should receive an update from gym environment on what to do)
-void Simulation::run(int flock_size) {
+void Simulation::run(int flock_size, std::function<void()> on_frame) {
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 
     if (this->fullscreen) {
@@ -45,7 +46,7 @@ void Simulation::run(int flock_size) {
         window.create(sf::VideoMode(window_width, window_height, desktop.bitsPerPixel), "Boids", sf::Style::Close);
     }
 
-    window.setFramerateLimit(FRAME_RATE);
+    window.setFramerateLimit(frame_rate);
 
     for (int i = 0; i < flock_size; ++i) {
         add_boid(get_random_float() * window_width, get_random_float() * window_height);
@@ -53,7 +54,7 @@ void Simulation::run(int flock_size) {
 
     while (window.isOpen()) {
         if (handle_input()) break;
-        render();
+        render(on_frame);
     }
 
     std::exit(0);
@@ -81,9 +82,12 @@ void Simulation::add_boid(float x, float y, bool is_predator, bool with_shape) {
     flock.add(b);
 }
 
-void Simulation::render() {
+void Simulation::render(const std::function<void()>& on_frame) {
     window.clear(light_scheme ? sf::Color::White : sf::Color::Black);
     flock.update(window_width, window_height, this->num_threads);
+
+    on_frame(); // Python to be executed
+
 
     /*Shapes data simply shadows boids. Order of boids in flock matches order of shape.*/
     //TODO(Can this be parallelized? Doesn't matter though, since frame is not shown boid by boid but by frame)
@@ -148,4 +152,20 @@ float Simulation::get_random_float() {
     static std::mt19937 engine(rd());
     static std::uniform_real_distribution<float> dist(0, 1);
     return dist(engine);
+}
+
+const Flock &Simulation::getFlock() const {
+    return flock;
+}
+
+void Simulation::setFlock(const Flock &flock_) {
+    Simulation::flock = flock_;
+}
+
+const std::vector<sf::CircleShape> &Simulation::getShapes() const {
+    return shapes;
+}
+
+void Simulation::setShapes(const std::vector<sf::CircleShape> &shapes_) {
+    Simulation::shapes = shapes_;
 }
