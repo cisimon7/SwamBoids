@@ -53,10 +53,13 @@ int main(int argc, char **argv) {
                           result["perception"].as<float>(), result["separation_distance"].as<float>(),
                           result["noise_scale"].as<float>(), result["fullscreen"].as<bool>(),
                           result["light_scheme"].as<bool>(), result["num_threads"].as<int>());
-    simulation.run(
-            result["flock_size"].as<int>()/*,
-            []() {  }*/
-    );
+    /*simulation.run(
+            result["flock_size"].as<int>()*//*,
+            []() {  }*//*
+    );*/
+
+//    simulation.add_boid(0.5f * result["width"].as<int>(), 0.5f * result["height"].as<int>());
+    simulation.step_run(10, 10);
 
     return EXIT_SUCCESS;
 }

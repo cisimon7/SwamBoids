@@ -21,7 +21,9 @@ public:
      * [cohesion_weight]: degree of randomness in movement of boid
      * [alignment_weight]: unity in movement of boids in a group
      * [separation_weight]: distance to maintain between boids in a group
+     * [perception]: radius of reachability
      * */
+    int boid_id;
     Vector2D position, velocity, acceleration;
     float max_width, max_height;
     float max_speed, max_force;
@@ -31,7 +33,7 @@ public:
     float noise_scale;
     bool is_predator;
 
-    Boid(float x, float y, float max_width, float max_height, float max_speed, float max_force,
+    Boid(int boid_id, float x, float y, float max_width, float max_height, float max_speed, float max_force,
          float acceleration_scale, float cohesion_weight, float alignment_weight, float separation_weight,
          float perception, float separation_distance, float noise_scale, bool is_predator = false);
 
@@ -50,6 +52,8 @@ public:
     void update(const std::vector<Boid *> &boids);
 
     float angle() const;
+
+    int getBoidId() const;
 
 };
 

@@ -58,3 +58,11 @@ void Flock::update(float window_width, float window_height, int num_threads) {
 int Flock::size() const {
     return boids.size();
 }
+
+const std::vector<Boid> &Flock::getBoids() const {
+    return boids;
+}
+
+void Flock::setBoids(const std::vector<Boid> &boids_) {
+    Flock::boids = boids_;
+}

@@ -3,6 +3,7 @@
  * */
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include "Flock.h"
 
 namespace py = pybind11;
@@ -14,5 +15,6 @@ PYBIND11_MODULE(FlockModule, m) {
             .def("__getitem__", &Flock::operator[], py::arg("i"))
             .def("add", &Flock::add, py::arg("boid"))
             .def("clear", &Flock::clear)
-            .def("size", &Flock::size);
+            .def("size", &Flock::size)
+            .def_property("boids", &Flock::getBoids, &Flock::setBoids);
 }

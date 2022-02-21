@@ -1,20 +1,18 @@
-import gym
-import numpy as np
-from gymBoidEnv import SwamBoidsEnv
-from gymBoidEnv.Structs import ActionBoid, ObsBoid
+from gymBoidEnv import SwamBoidsEnv, ActionBoid, RenderMode
 
 if __name__ == '__main__':
 
     env = SwamBoidsEnv()
-    env.step_render = True
+    env.render_mode = RenderMode.TRAINING
+    env.step_render_delay_ms = 300
 
     for i_episode in range(1):
-        observation = env.reset()
-        for t in range(10):
+        env.reset()
+        for t in range(50):
             env.render()
-            print(observation)
-            action = ActionBoid.from_arr(np.random.rand(2))
+            action = ActionBoid(0, 30)  # Constantly move agent up
             observation, reward, done, info = env.step(action)
+            # print(observation[0])
             if done:
                 print("Episode finished after {} timesteps".format(t + 1))
                 break

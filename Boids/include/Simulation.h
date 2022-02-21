@@ -14,7 +14,7 @@
 
 class Simulation {
 private:
-    sf::RenderWindow window, step_window;
+    sf::RenderWindow window;
     sf::VideoMode step_desktop;
     int window_width, window_height;
     Flock flock;
@@ -30,13 +30,11 @@ private:
     int num_threads;
     int frame_rate;
 
+    void render(const std::function<void()> &on_frame, bool ext_update = false);
+
     void add_boid(float x, float y, bool is_predator = false, bool with_shape = true);
 
-    void render(const std::function<void()>& on_frame);
-
     bool handle_input();
-
-    float static get_random_float();
 
 public:
     constexpr static float DEFAULT_BOID_SIZE = 4;
@@ -63,7 +61,7 @@ public:
 
     void setShapes(const std::vector<sf::CircleShape> &shapes_);
 
-    std::function<void(float)> frame_update = [](float a) { };
+    std::function<void(float)> frame_update = [](float a) {};
 
     Simulation(int window_width, int window_height, float boid_size, float max_speed, float max_force,
                float alignment_weight,
@@ -73,11 +71,13 @@ public:
 
     ~Simulation();
 
-    void run(int flock_size, const std::function<void()>& on_frame = [](){ });
+    void run(int flock_size, int pred_size = 0, const std::function<void()> &on_frame = []() {}, bool ext_update = false);
 
     std::vector<double> benchmark(int flock_size, int num_steps);
 
-    void step_run(int flock_size, const std::function<void()> &on_frame);
+    void step_run(int flock_size, int pred_size = 0, const std::function<void()> &on_frame = []() {}, int delay_ms = 500);
+
+    float static get_random_float();
 };
 
 

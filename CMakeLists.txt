@@ -63,3 +63,11 @@ pybind11_add_module(
 target_include_directories(BoidModule PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(BoidModule PUBLIC ${BOID_LIB} sfml-graphics sfml-window sfml-system ${OPEN_MP_LIB})
 set_target_properties(BoidModule PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_DIR}/bindings)
+
+pybind11_add_module(
+        Vector2DModule
+        ${BOIDS_DIR}/pybinds/Vector2DModule.cpp
+)
+target_include_directories(Vector2DModule PUBLIC ${INCLUDE_DIRS})
+target_link_libraries(Vector2DModule PUBLIC ${BOID_LIB} sfml-graphics sfml-window sfml-system ${OPEN_MP_LIB})
+set_target_properties(Vector2DModule PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_DIR}/bindings)

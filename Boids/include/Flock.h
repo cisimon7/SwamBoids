@@ -33,6 +33,10 @@ public:
 
     int size() const;
 
+    const std::vector<Boid> &getBoids() const;
+
+    void setBoids(const std::vector<Boid> &boids_);
+
 };
 
 

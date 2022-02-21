@@ -7,6 +7,7 @@
 #include <random>
 #include <omp.h>
 #include <Simulation.h>
+#include <iostream>
 
 
 Simulation::Simulation(int window_width, int window_height, float boid_size, float max_speed, float max_force,
@@ -36,7 +37,7 @@ Simulation::~Simulation() = default;
 
 //TODO(May need to pass gym environment here for the purpose of rendering)
 //TODO(Should receive an update from gym environment on what to do)
-void Simulation::run(int flock_size, const std::function<void()>& on_frame) {
+void Simulation::run(int flock_size, int pred_size, const std::function<void()> &on_frame, bool ext_update) {
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 
     if (this->fullscreen) {
@@ -52,15 +53,19 @@ void Simulation::run(int flock_size, const std::function<void()>& on_frame) {
         add_boid(get_random_float() * window_width, get_random_float() * window_height);
     }
 
+    for (int i = 0; i < pred_size; ++i) {
+        add_boid(get_random_float() * window_width, get_random_float() * window_height, true);
+    }
+
     while (window.isOpen()) {
         if (handle_input()) break;
-        render(on_frame);
+        render(on_frame, ext_update);
     }
 
     std::exit(0);
 }
 
-void Simulation::step_run(int flock_size, const std::function<void()>& on_frame) {
+void Simulation::step_run(int flock_size, int pred_size, const std::function<void()> &on_frame, int delay_ms) {
     if (flock.size() == 0) {
         step_desktop = sf::VideoMode::getDesktopMode();
 
@@ -68,11 +73,16 @@ void Simulation::step_run(int flock_size, const std::function<void()>& on_frame)
             window.create(sf::VideoMode(step_desktop.width, step_desktop.height, step_desktop.bitsPerPixel), "Boids",
                           sf::Style::Fullscreen);
         } else {
-            window.create(sf::VideoMode(window_width, window_height, step_desktop.bitsPerPixel), "Boids", sf::Style::Close);
+            window.create(sf::VideoMode(window_width, window_height, step_desktop.bitsPerPixel), "Boids",
+                          sf::Style::Close);
         }
 
         for (int i = 0; i < flock_size; ++i) {
             add_boid(get_random_float() * window_width, get_random_float() * window_height);
+        }
+
+        for (int i = 0; i < pred_size; ++i) {
+            add_boid(get_random_float() * window_width, get_random_float() * window_height, true);
         }
     }
 
@@ -83,18 +93,18 @@ void Simulation::step_run(int flock_size, const std::function<void()>& on_frame)
                 window.close();
             }
         }
-        render(on_frame);
-        sf::sleep(sf::milliseconds(500));
+        render(on_frame, true);
+        sf::sleep(sf::milliseconds(delay_ms));
     }
-
-    /*std::exit(0);*/
 }
 
 void Simulation::add_boid(float x, float y, bool is_predator, bool with_shape) {
 
     /* For each boid object, we have a shape representing it. */
 
-    Boid b = Boid{x, y, (float) window_width, (float) window_height, max_speed, max_force, acceleration_scale,
+    int boid_id = flock.size();
+
+    Boid b = Boid{boid_id, x, y, (float) window_width, (float) window_height, max_speed, max_force, acceleration_scale,
                   cohesion_weight, alignment_weight, separation_weight, perception, separation_distance, noise_scale,
                   is_predator};
 
@@ -112,12 +122,14 @@ void Simulation::add_boid(float x, float y, bool is_predator, bool with_shape) {
     flock.add(b);
 }
 
-void Simulation::render(const std::function<void()>& on_frame) {
+void Simulation::render(const std::function<void()> &on_frame, bool ext_update) {
     window.clear(light_scheme ? sf::Color::White : sf::Color::Black);
-    flock.update(window_width, window_height, this->num_threads);
 
-    on_frame(); // Python to be executed
-
+    if (ext_update) {
+        on_frame(); // Update flock from python
+    } else {
+        flock.update(window_width, window_height, this->num_threads);
+    }
 
     /*Shapes data simply shadows boids. Order of boids in flock matches order of shape.*/
     //TODO(Can this be parallelized? Doesn't matter though, since frame is not shown boid by boid but by frame)

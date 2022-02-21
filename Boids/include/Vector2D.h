@@ -79,6 +79,9 @@ public:
 
     static Vector2D random();
 
+    static std::vector<float> conv(const Vector2D& vec) {
+        return { vec.x, vec.y };
+    }
 };
 
 

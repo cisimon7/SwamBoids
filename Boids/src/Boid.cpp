@@ -6,13 +6,14 @@
 #include <cmath>
 #include "../include/Boid.h"
 
-Boid::Boid(float x, float y, float max_width, float max_height, float max_speed, float max_force,
+Boid::Boid(int boid_id, float x, float y, float max_width, float max_height, float max_speed, float max_force,
            float acceleration_scale, float cohesion_weight, float alignment_weight, float separation_weight,
            float perception, float separation_distance, float noise_scale, bool is_predator) {
     position = Vector2D{x, y};
     velocity = (Vector2D::random() - 0.5) * max_speed * 2;
     acceleration = Vector2D{};
 
+    this->boid_id = boid_id;
     this->max_width = max_width;
     this->max_height = max_height;
     this->max_speed = max_speed;
@@ -33,6 +34,7 @@ Boid::Boid(float x, float y, float max_width, float max_height, float max_speed,
 }
 
 Boid::Boid(const Boid &other) {
+    boid_id = other.boid_id;
     position = other.position;
     velocity = other.velocity;
     acceleration = other.acceleration;
