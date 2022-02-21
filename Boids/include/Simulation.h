@@ -14,7 +14,8 @@
 
 class Simulation {
 private:
-    sf::RenderWindow window;
+    sf::RenderWindow window, step_window;
+    sf::VideoMode step_desktop;
     int window_width, window_height;
     Flock flock;
     std::vector<sf::CircleShape> shapes;
@@ -72,10 +73,11 @@ public:
 
     ~Simulation();
 
-    void run(int flock_size, std::function<void()> on_frame = [](){ });
+    void run(int flock_size, const std::function<void()>& on_frame = [](){ });
 
     std::vector<double> benchmark(int flock_size, int num_steps);
 
+    void step_run(int flock_size, const std::function<void()> &on_frame);
 };
 
 

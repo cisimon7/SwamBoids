@@ -31,7 +31,7 @@ Acceleration = Vector2D
 
 # Observation Type For Boid. Holds info: Position, Velocity, Acceleration and id of other Boids
 ObsBoid = Tuple[Position, Velocity, Acceleration, List[float]]
-obs = (
+rnd_obs = (
     Position.from_arr(np.zeros(2)),
     Velocity.from_arr(np.zeros(2)),
     Acceleration.from_arr(np.zeros(2)),

@@ -1,7 +1,10 @@
 from gym import Env
 from typing import Tuple
-from EnvStructs import ActionBoid, ObsBoid
+from ..gymBoidEnv.Structs import ActionBoid, ObsBoid, rnd_obs
 from ..binaries import Simulation, Flock, Boid, KDTree
+
+import logging
+from gym.envs.registration import register
 
 FRAME_RATE = 60
 
@@ -13,7 +16,10 @@ class SwamBoidsEnv(Env):
     }
 
     def __init__(self):
+        self.step_render = True
         self.simulation = new_simulation_env(FRAME_RATE)
+        self.flock = self.simulation.flock
+        self.shapes = self.simulation.shapes
 
     def get_flock(self) -> Flock: return self.simulation.flock
 
@@ -38,25 +44,25 @@ class SwamBoidsEnv(Env):
         # TODO(How should cohesion, alignment and separation affect reward)
         # TODO(Done is currently set to false as there is no end to the life of the agent - boid)
         info = dict()
-        return ObsBoid(), 0.0, False, info
+        return rnd_obs, 0.0, False, info
 
     def reset(self):
         self.simulation = new_simulation_env(FRAME_RATE)
-        return ObsBoid()  # Returns initial Observation for a boid
+        return rnd_obs  # Returns initial Observation for a boid
 
     def render(self, mode="human"):
         if mode != 'human':
             super(SwamBoidsEnv, self).render(mode=mode)  # just raise an exception
 
-        # TODO(Pass flock to simulation, call sfml clear screen and call on draw for new boid positions)
-        self.simulation.run(
-            flock_size=0,
-            on_frame=self.step_render
-        )
+        if self.step_render:
+            self.simulation.step_run(flock_size=10, on_frame=(lambda: None))
+        else:
+            self.simulation.run(flock_size=10, on_frame=(lambda: None))
 
-    def step_render(self):
+    def step_update(self):
         # TODO(Update simulation flocks)
-        pass
+        self.flock = Flock()
+        self.shapes = []
 
 
 def new_simulation_env(frame_rate: int):
@@ -78,3 +84,12 @@ def new_simulation_env(frame_rate: int):
         num_threads=-1,
         frame_rate=frame_rate
     )
+
+
+logger = logging.getLogger(__name__)
+
+# Calling SwamBoidsEnv must call this function
+register(
+    id='SwamBoidsEnv-v0',
+    entry_point='PyModule.gymBoidEnv:SwamBoidsEnv'
+)

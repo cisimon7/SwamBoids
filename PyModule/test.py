@@ -1,15 +1,21 @@
 import gym
-from gymBoidEnv import SwamBoidsEnv, ObsBoid, BoidEnv
+import numpy as np
+from gymBoidEnv import SwamBoidsEnv
+from gymBoidEnv.Structs import ActionBoid, ObsBoid
 
-env = gym.make('SwamBoidsEnv-v0')
-for i_episode in range(20):
-    observation = env.reset()
-    for t in range(100):
-        env.render()
-        print(observation)
-        action = env.action_space.sample()
-        observation, reward, done, info = env.step(action)
-        if done:
-            print("Episode finished after {} timesteps".format(t + 1))
-            break
-env.close()
+if __name__ == '__main__':
+
+    env = SwamBoidsEnv()
+    env.step_render = True
+
+    for i_episode in range(1):
+        observation = env.reset()
+        for t in range(10):
+            env.render()
+            print(observation)
+            action = ActionBoid.from_arr(np.random.rand(2))
+            observation, reward, done, info = env.step(action)
+            if done:
+                print("Episode finished after {} timesteps".format(t + 1))
+                break
+    env.close()

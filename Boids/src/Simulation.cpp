@@ -36,7 +36,7 @@ Simulation::~Simulation() = default;
 
 //TODO(May need to pass gym environment here for the purpose of rendering)
 //TODO(Should receive an update from gym environment on what to do)
-void Simulation::run(int flock_size, std::function<void()> on_frame) {
+void Simulation::run(int flock_size, const std::function<void()>& on_frame) {
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
 
     if (this->fullscreen) {
@@ -58,6 +58,36 @@ void Simulation::run(int flock_size, std::function<void()> on_frame) {
     }
 
     std::exit(0);
+}
+
+void Simulation::step_run(int flock_size, const std::function<void()>& on_frame) {
+    if (flock.size() == 0) {
+        step_desktop = sf::VideoMode::getDesktopMode();
+
+        if (this->fullscreen) {
+            window.create(sf::VideoMode(step_desktop.width, step_desktop.height, step_desktop.bitsPerPixel), "Boids",
+                          sf::Style::Fullscreen);
+        } else {
+            window.create(sf::VideoMode(window_width, window_height, step_desktop.bitsPerPixel), "Boids", sf::Style::Close);
+        }
+
+        for (int i = 0; i < flock_size; ++i) {
+            add_boid(get_random_float() * window_width, get_random_float() * window_height);
+        }
+    }
+
+    sf::Event event;
+    if (window.isOpen()) {
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+        }
+        render(on_frame);
+        sf::sleep(sf::milliseconds(500));
+    }
+
+    /*std::exit(0);*/
 }
 
 void Simulation::add_boid(float x, float y, bool is_predator, bool with_shape) {

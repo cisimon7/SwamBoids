@@ -24,15 +24,14 @@ if __name__ == '__main__':
     flock: Flock = simulation.flock  # Casting as Flock
     shapes = simulation.shapes
 
-    print(shapes)
-
 
     def on_each_frame():
-        # print("Hello Python")
         if flock.size() > 100:
             flock.clear()
             simulation.shapes = []
         print(flock.size())
 
 
-    simulation.run(flock_size=10, on_frame=on_each_frame)
+    simulation.step_run(flock_size=10, on_frame=(lambda: None))
+
+# Mark
