@@ -53,8 +53,6 @@ public:
 
     float angle() const;
 
-    int getBoidId() const;
-
 };
 
 

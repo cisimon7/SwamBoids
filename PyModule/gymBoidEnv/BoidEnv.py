@@ -14,7 +14,7 @@ from ..config import MAX_SPEED, MAX_FORCE, ALIGNMENT_WEIGHT, COHESION_WEIGHT, SE
 RENDER_DELAY_MS = 300  # Delay during when rendering frame by frame
 BOID_COUNT = 50  # Initial boid count
 PREDATOR_COUNT = 5  # Initial predator count
-UNIT_STEP = 10  # Unit step of boid per frame change
+UNIT_STEP = 1  # Unit step of boid per frame change
 
 
 class SwamBoidsEnv(Env):
