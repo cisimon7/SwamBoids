@@ -16,4 +16,5 @@ sound signals produced by nearby boids. The neural network brain of boids will b
 The scientific objective of this project is to verify whether evolving boids can develop an ability to coordinate and cooperate to avoid long distant dangers and eventually an ability to monitor a
 large space region that enables them to identify dangers as quickly as possible.
 
-Adaptive Algorithm: Reinforcement learning (PPO)
+* Adaptive Algorithm: Reinforcement learning (PPO)
+* Library: Stable-baselines3 and OpenAI gym
