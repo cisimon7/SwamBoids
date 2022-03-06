@@ -1,18 +1,21 @@
 import logging
+
+from gym.spaces import MultiDiscrete, MultiBinary
+import numpy as np
 from numpy.random import rand
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, Set, Dict
 
 from gym import Env
 from gym.envs.registration import register
 
 from ..binaries import Simulation, Flock, KDTree, Boid, Vector2D
-from ..gymBoidEnv.Structs import ActionBoid, ObsBoid, rnd_obs, RenderMode, Pos, Vel, Acc
+from ..gymBoidEnv.Structs import RenderMode, np_vector2D, createObs, ObsvBoid, split, ActionBoid
 from ..config import FRAME_RATE, WINDOW_WIDTH, WINDOW_HEIGHT, PERCEPTION
 from ..config import MAX_SPEED, MAX_FORCE, ALIGNMENT_WEIGHT, COHESION_WEIGHT, SEPARATION_WEIGHT, ACCELERATION_SCALE, \
-    SEPARATION_DISTANCE, NOISE_SCALE, BOID_SIZE, NUM_THREADS
+    SEPARATION_DISTANCE, NOISE_SCALE, BOID_SIZE, NUM_THREADS, BOID_COUNT
 
 RENDER_DELAY_MS = 300  # Delay during when rendering frame by frame
-BOID_COUNT = 50  # Initial boid count
+BOID_COUNT_ = BOID_COUNT  # Initial boid count
 PREDATOR_COUNT = 5  # Initial predator count
 UNIT_STEP = 1  # Unit step of boid per frame change
 
@@ -31,34 +34,37 @@ class SwamBoidsEnv(Env):
         # The main boid is the boid being trained in the simulation environment
         self.main_boid_id: Optional[int] = None  # To be set upon reset environment
 
+        self.action_space = ActionBoid
+        self.observation_space = ObsvBoid
+
     def get_flock(self) -> Flock:
         return self.simulation.flock
 
     def set_flock(self, flock_: Flock):
         self.simulation.flock = flock_
 
-    def step(self, action: ActionBoid) -> Tuple[ObsBoid, float, bool, dict]:
+    def step(self, action: ActionBoid) -> Tuple[np.ndarray, float, bool, dict]:
         # Get Boids nearby to the main boid
         neighbors: List[Boid] = self.boid_neighbors(self.main_boid_id)
 
         m_boid = self.get_boid_by_id(self.main_boid_id)
 
-        pos = Pos.from_vector2D(m_boid.position)
-        vel = Vel.from_vector2D(m_boid.velocity)
-        acc = Acc.from_vector2D(m_boid.acceleration)
+        pos = np_vector2D(m_boid.position)  # Pos.from_vector2D(m_boid.position)
+        vel = np_vector2D(m_boid.velocity)  # Vel.from_vector2D(m_boid.velocity)
+        acc = np_vector2D(m_boid.acceleration)  # Acc.from_vector2D(m_boid.acceleration)
 
         # current observation for main boid
-        current_obs: ObsBoid = (pos, vel, acc, neighbors)
+        current_obs = np.c_[pos, vel, acc].ravel()
 
         # Make decision based on current observation
-        new_obs = obs_change(current_obs, action)
-        (n_pos, n_vel, n_acc, _) = new_obs
+        new_obs = obs_change(current_obs, neighbors, action)
+        (n_pos, n_vel, n_acc) = split(new_obs)
 
         # update main boid
         c_pos = self.pos_const(n_pos)  # Toroidal world
-        m_boid.position = Vector2D(c_pos.x, c_pos.y)
-        m_boid.velocity = Vector2D(n_vel.x, n_vel.y)
-        m_boid.acceleration = Vector2D(n_acc.x, n_acc.y)
+        m_boid.position = Vector2D(c_pos[0], c_pos[1])
+        m_boid.velocity = Vector2D(n_vel[0], n_vel[1])
+        m_boid.acceleration = Vector2D(n_acc[0], n_acc[1])
         self.set_boid_by_id(m_boid.boid_id, m_boid)
 
         # update other boids that are not the main boid
@@ -70,29 +76,29 @@ class SwamBoidsEnv(Env):
         # define done
         done = False
 
-        info = dict()
+        info = dict(prev_neighbors=neighbors)
         return new_obs, reward, done, info
 
     def reset(self):
         self.simulation = new_simulation_env(FRAME_RATE)
 
         # Populate simulation with specified number of boids by calling step_run
-        self.simulation.step_run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT,
+        self.simulation.step_run(flock_size=BOID_COUNT_, pred_size=PREDATOR_COUNT,
                                  on_frame=(lambda: print("Initialized")), delay_ms=0)
         self.main_boid_id = self.simulation.flock.boids[0].boid_id
 
-        return rnd_obs  # Returns initial Observation for a boid
+        return self.observation_space.sample()  # Returns initial Observation for a boid
 
     def render(self, mode="human"):
         if mode != 'human':
             super(SwamBoidsEnv, self).render(mode=mode)  # Raises an exception
 
         if self.render_mode.value is RenderMode.TRAINING.value:
-            self.simulation.step_run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT,
+            self.simulation.step_run(flock_size=BOID_COUNT_, pred_size=PREDATOR_COUNT,
                                      on_frame=(lambda: None), delay_ms=self.step_render_delay_ms)
         else:
             # This simply uses the flocking algorithm
-            self.simulation.run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT, on_frame=(lambda: None))
+            self.simulation.run(flock_size=BOID_COUNT_, pred_size=PREDATOR_COUNT, on_frame=(lambda: None))
 
     def flock_update_cpp(self):
         # update flocks based on initial cpp algorithm
@@ -125,20 +131,20 @@ class SwamBoidsEnv(Env):
 
         return tree.search(boids[boid_id], radius=PERCEPTION)
 
-    def pos_const(self, pos: Pos) -> Pos:
+    def pos_const(self, pos) -> np.ndarray:
         # Taking into account the toroidal universe
-        if pos.x < 0: pos.x += WINDOW_WIDTH
-        if pos.y < 0: pos.y += WINDOW_HEIGHT
-        if pos.x >= WINDOW_WIDTH: pos.x -= WINDOW_WIDTH
-        if pos.y >= WINDOW_HEIGHT: pos.y -= WINDOW_HEIGHT
+        if pos[0] < 0: pos[0] += WINDOW_WIDTH
+        if pos[1] < 0: pos[1] += WINDOW_HEIGHT
+        if pos[0] >= WINDOW_WIDTH: pos[0] -= WINDOW_WIDTH
+        if pos[1] >= WINDOW_HEIGHT: pos[1] -= WINDOW_HEIGHT
         return pos
 
     def update_other_bids(self):
         boids: List[Boid] = self.get_flock().boids
         for boid in boids:
             if boid.boid_id != self.main_boid_id:  # main boid already updated by training
-                pos = self.pos_const(Pos(boid.position.x + UNIT_STEP, boid.position.y))  # Toroidal universe
-                boid.position = Vector2D(pos.x, pos.y)
+                pos = self.pos_const(np.array([boid.position.x + UNIT_STEP, boid.position.y]))  # Toroidal universe
+                boid.position = Vector2D(pos[0], pos[1])
 
     def get_boid_by_id(self, id_) -> Boid:
         return list(filter(lambda boid: boid.boid_id == id_, self.get_flock().boids))[0]
@@ -170,14 +176,9 @@ def new_simulation_env(frame_rate: int = FRAME_RATE) -> Simulation:
     )
 
 
-def obs_change(obs: ObsBoid, action: ActionBoid) -> ObsBoid:
+def obs_change(obs: np.ndarray, neighbors: List[Boid], action: ActionBoid) -> np.ndarray:
     # How action should change observation
-    return (
-        obs[0] + action,
-        obs[1],
-        obs[2],
-        obs[3]
-    )
+    return np.c_[obs[:2] + action, obs[2:4], obs[4:6]].ravel()
 
 
 logger = logging.getLogger(__name__)

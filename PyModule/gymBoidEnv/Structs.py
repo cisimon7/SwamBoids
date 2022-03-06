@@ -1,65 +1,64 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Tuple, List
+from typing import Tuple, List, Set, Dict
+
+import gym
+from bindings.BoidModule import Boid
+from gym import spaces
+from gym.spaces import Space, Box
+from ..config import BOID_COUNT
+from PyModule.config import WINDOW_WIDTH, WINDOW_HEIGHT
 
 import numpy as np
 
 from ..binaries import Vector2D
 
-
-@dataclass
-class Vec2D:
-    x: float
-    y: float
-
-    def arr(self) -> np.ndarray:
-        # Retrieve points in a numpy array format
-        return np.array([self.x, self.y])
-
-    def __add__(self, other):
-        return Vec2D(self.x + other.x, self.y + other.y)
-
-    def __sub__(self, other):
-        return Vec2D(self.x - other.x, self.y - other.y)
-
-    def __mul__(self, other):
-        return Vec2D(self.x * other.x, self.y * other.y)
-
-    @staticmethod
-    def from_arr(array: np.ndarray):
-        # Create position from array
-        assert array.shape[0] == 2
-        return Vec2D(array[0], array[1])
-
-    @staticmethod
-    def rand(max_x, max_y):
-        # Element-wise multiplication
-        rand_pos = np.random.rand(2) * np.array([max_x, max_y])
-        return Vec2D.from_arr(rand_pos)
-
-    @staticmethod
-    def from_vector2D(vec: Vector2D):
-        return Vec2D(vec.x, vec.y)
-
-
-Pos = Vec2D  # Position vector
-Vel = Vec2D  # Velocity vector
-Acc = Vec2D  # Acceleration vector
-
-# Observation Type For Boid. Holds info: Position, Velocity, Acceleration and id of other Boids
-ObsBoid = Tuple[Pos, Vel, Acc, List[float]]
-rnd_obs = (
-    Pos.from_arr(np.zeros(2)),
-    Vel.from_arr(np.zeros(2)),
-    Acc.from_arr(np.zeros(2)),
-    []
+ObsvBoid = Box(
+    low=np.array([0, 0, -np.inf, -np.inf, -np.inf, -np.inf], dtype=np.float32),
+    high=np.array([WINDOW_WIDTH, WINDOW_HEIGHT, np.inf, np.inf, np.inf, np.inf], dtype=np.float32),
+    dtype=np.float32
 )
 
-# Action is simply the change in acceleration vector
-ActionBoid = Vec2D
+ActionBoid = Box(
+    low=np.array([-np.inf, -np.inf], dtype=np.float32),
+    high=np.array([np.inf, np.inf], dtype=np.float32),
+    dtype=np.float32
+)  # Action is simply the change in acceleration vector
 
 
-# Render Mode
+def split(obs_vec: np.ndarray):
+    tup = (obs_vec[:2], obs_vec[2:4], obs_vec[4:])
+    return tup
+
+
+def createObs(pos: np.ndarray, vel: np.ndarray, acc: np.ndarray):
+    return dict(
+        position=pos,
+        velocity=vel,
+        acceleration=acc
+    )
+
+
+def np_vector2D(vector: Vector2D) -> np.ndarray:
+    return np.array([vector.x, vector.y])
+
+
 class RenderMode(Enum):
     TRAINING = 1
     EVALUATION = 2
+
+
+@dataclass
+class BoidObject:
+    id: int
+    position: np.ndarray
+    velocity: np.ndarray
+    acceleration: np.ndarray
+
+    def from_boid(self, boid: Boid):
+        return BoidObject(
+            boid.boid_id,
+            np_vector2D(boid.position),
+            np_vector2D(boid.velocity),
+            np_vector2D(boid.acceleration)
+        )

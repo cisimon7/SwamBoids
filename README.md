@@ -3,6 +3,11 @@
 Initial c++ code with simulation from: https://github.com/rystrauss/boids <br>
 Python3 version used: 3.9.10
 
+### Running code:
+
+To run the code, it is best to create a virtual environment in the PyModule Directory where the binaries would be automatically installed.
+Build the c++ code to generate the binaries, then run the python code.
+
 ### Description:
 
 The flocking behavior of swarms of birds can be modelled by creating a swarm of artificial births (boids) which react to observations by using simple control rules that increase cohesion,
