@@ -55,7 +55,8 @@ class BoidObject:
     velocity: np.ndarray
     acceleration: np.ndarray
 
-    def from_boid(self, boid: Boid):
+    @staticmethod
+    def from_boid(boid: Boid):
         return BoidObject(
             boid.boid_id,
             np_vector2D(boid.position),

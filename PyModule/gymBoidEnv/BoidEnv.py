@@ -49,9 +49,9 @@ class SwamBoidsEnv(Env):
 
         m_boid = self.get_boid_by_id(self.main_boid_id)
 
-        pos = np_vector2D(m_boid.position)  # Pos.from_vector2D(m_boid.position)
-        vel = np_vector2D(m_boid.velocity)  # Vel.from_vector2D(m_boid.velocity)
-        acc = np_vector2D(m_boid.acceleration)  # Acc.from_vector2D(m_boid.acceleration)
+        pos = np_vector2D(m_boid.position)
+        vel = np_vector2D(m_boid.velocity)
+        acc = np_vector2D(m_boid.acceleration)
 
         # current observation for main boid
         current_obs = np.c_[pos, vel, acc].ravel()

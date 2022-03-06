@@ -17,6 +17,16 @@ PYBIND11_MODULE(Vector2DModule, m) {
                  [](const Vector2D &vec) {
                      return "Vector2D(x=" + std::to_string(vec.x) + ", y=" + std::to_string(vec.y) + ")";
                  }
-            );
+            ).def(py::pickle(
+                    [](const Vector2D &vec) {
+                        return py::make_tuple(vec.x, vec.y);
+                    },
+                    [](py::tuple t) {
+                        if (t.size() != 2)
+                            throw std::runtime_error("Invalid Vector2D Pickle State!");
+
+                        return Vector2D(t[0].cast<float>(), t[1].cast<float>());
+                    }
+            ));
 }
 

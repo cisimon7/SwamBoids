@@ -11,7 +11,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(BoidModule, m) {
     py::class_<Boid>(m, "Boid")
             .def(py::init<>(
-                         [](int boid_id, float x, float y, float max_width, float max_height, float max_speed, float max_force,
+                         [](int boid_id, float x, float y, float max_width, float max_height, float max_speed,
+                            float max_force,
                             float acceleration_scale, float cohesion_weight, float alignment_weight,
                             float separation_weight, float perception, float separation_distance, float noise_scale,
                             bool is_predator = false) {
@@ -62,5 +63,48 @@ PYBIND11_MODULE(BoidModule, m) {
                      return "Boid(x=" + std::to_string(boid.position.x) + ", y=" + std::to_string(boid.position.y) +
                             ")";
                  }
-            );
+            )
+            .def(py::pickle(
+                    [](const Boid &p) { // __getstate__
+                        return py::make_tuple(
+                                p.boid_id, // 0
+                                p.position,// 1
+                                p.max_width,// 2
+                                p.max_height,// 3
+                                p.max_speed,// 4
+                                p.max_force,// 5
+                                p.acceleration_scale,// 6
+                                p.cohesion_weight,// 7
+                                p.alignment_weight,// 8
+                                p.separation_weight,// 9
+                                p.perception,// 10
+                                p.separation_distance,// 11
+                                p.noise_scale,// 12
+                                p.is_predator);// 13
+                    },
+                    [](py::tuple t) { // __setstate__
+                        if (t.size() != 14)
+                            throw std::runtime_error("Invalid Boid Pickle state!");
+
+                        Boid boid(
+                                t[0].cast<int>(),
+                                t[1].cast<Vector2D>().x,
+                                t[1].cast<Vector2D>().y,
+                                t[2].cast<float>(),
+                                t[3].cast<float>(),
+                                t[4].cast<float>(),
+                                t[5].cast<float>(),
+                                t[6].cast<float>(),
+                                t[7].cast<float>(),
+                                t[8].cast<float>(),
+                                t[9].cast<float>(),
+                                t[10].cast<float>(),
+                                t[11].cast<float>(),
+                                t[12].cast<float>(),
+                                t[13].cast<bool>()
+                        );
+
+                        return boid;
+                    }
+            ));
 }

@@ -1,7 +1,10 @@
+import pickle
 import numpy as np
+from bindings.BoidModule import Boid
+
 from PyModule.gymBoidEnv import SwamBoidsEnv
 from stable_baselines3.common.env_checker import check_env
-from PyModule.gymBoidEnv.Structs import ObsBoid, RenderMode
+from PyModule.gymBoidEnv.Structs import RenderMode
 
 # if __name__ == '__main__':
 #     env = SwamBoidsEnv()
