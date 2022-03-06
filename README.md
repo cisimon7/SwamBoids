@@ -1,6 +1,5 @@
 ### Ongoing Research project:
 
-Initial c++ code with simulation from: https://github.com/rystrauss/boids <br>
 Python3 version used: 3.9.10
 
 ### Running code:
