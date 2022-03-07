@@ -1,9 +1,10 @@
-from bindings.SimulationModule import *
-from bindings.FlockModule import *
+import numpy as np
+from ..config import *
 from bindings.BoidModule import *
+from bindings.FlockModule import *
 from bindings.KDTreeModule import *
 from bindings.Vector2DModule import *
-from ..config import *
+from bindings.SimulationModule import *
 
 
 def new_simulation_env(frame_rate: int = FRAME_RATE) -> Simulation:
@@ -25,3 +26,12 @@ def new_simulation_env(frame_rate: int = FRAME_RATE) -> Simulation:
         num_threads=NUM_THREADS,
         frame_rate=frame_rate
     )
+
+
+def cpp_vec_np(vector: Vector2D) -> np.ndarray:
+    """
+    Converts the cpp Vector2D class into a numpy array
+    :param vector:
+    :return:
+    """
+    return np.array([vector.x, vector.y])

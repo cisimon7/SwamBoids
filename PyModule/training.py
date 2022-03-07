@@ -1,24 +1,17 @@
 import os
-import gym
 import time
-from stable_baselines3 import PPO
-from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.logger import configure
-from stable_baselines3.common.callbacks import EvalCallback
-from gymBoidEnv import SwamBoidsEnv, ActionBoid, RenderMode
 
-"""
-QUESTIONS:
-    ✹ What should be in the observation vector?
-    ✹ What is the action vector?
-    ✹ How does action vector give new observation?
-    ✹ How many boids and predators should be in training environment?
-    ✹ How should cohesion, alignment and separation affect reward?
-    ✹ How should the other boids behave in order not to make the task of training the boid too difficult?
-    ✹ ?
-"""
-LOG_DIR = "PPO_Training_data"
-TIME_STEPS = 1
+from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import EvalCallback
+from stable_baselines3.common.logger import configure
+from stable_baselines3.common.monitor import Monitor
+
+from gymBoidEnv import SwamBoidsEnv, RenderMode
+
+LOG_DIR = "trained_models/flocking_algorithm"
+TIME_STEPS = 200  # int(2e8)
+EVAL_FREQ = 1_000
+EVAL_EPISODES = 5
 
 
 def train():
@@ -30,11 +23,15 @@ def train():
 
     env = Monitor(swam_env, LOG_DIR)
 
-    ppo_model = PPO("MlpPolicy", env, learning_rate=(lambda rate_left: rate_left * 1e-4), n_steps=1024,
-                    batch_size=1024, verbose=2, gae_lambda=0.95, gamma=0.99, ent_coef=0.0)
+    model = PPO("MlpPolicy", env, learning_rate=(lambda rate_left: rate_left * 1e-4), n_steps=TIME_STEPS,
+                batch_size=1024, verbose=2, gae_lambda=0.95, gamma=0.99, ent_coef=0.0)
 
-    ppo_model.learn(total_timesteps=TIME_STEPS, callback=[])
-    ppo_model.save(os.path.join(LOG_DIR, "final_model"))  # probably never get to this point.
+    eval_callback = EvalCallback(env, best_model_save_path=LOG_DIR, log_path=LOG_DIR, eval_freq=EVAL_FREQ,
+                                 n_eval_episodes=EVAL_EPISODES)
+    model.set_logger(logger)
+    model.learn(total_timesteps=TIME_STEPS, callback=[eval_callback])
+
+    model.save(os.path.join(LOG_DIR, "final_model"))  # probably never get to this point.
     env.close()
 
 

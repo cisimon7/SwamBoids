@@ -95,6 +95,7 @@ void Simulation::step_run(int flock_size, int pred_size, const std::function<voi
         }
         render(on_frame, true);
         sf::sleep(sf::milliseconds(delay_ms));
+//        window.close();
     }
 }
 

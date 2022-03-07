@@ -1,22 +1,27 @@
-from gymBoidEnv import SwamBoidsEnv
-from stable_baselines3 import PPO
 import argparse
+from datetime import datetime, timedelta
 
-model_path = "PPO_Training_data/final_model.zip"
+from stable_baselines3 import PPO
+
+from gymBoidEnv import SwamBoidsEnv
+
+model_path = "trained_models/flocking_algorithm/final_model.zip"
 
 
-def rollout(env, policy, render=False):
+def rollout(env: SwamBoidsEnv, policy, render=False):
     obs = env.reset()
-
-    done = False
     total_reward = 0
 
-    while not done:
+    stop = datetime.now() + timedelta(seconds=5, minutes=0)
+
+    # run for a period of time
+    while datetime.now() < stop:
         action, _states = policy.predict(obs, deterministic=True)
         obs, reward, done, _ = env.step(action)
+
         total_reward += reward
 
-        if render:
+        if render_mode:
             env.render()
 
     return total_reward
@@ -36,5 +41,5 @@ if __name__ == '__main__':
     history = []
     for i in range(1):
         cumulative_score = rollout(boid_env, model, render_mode)
-        print("cumulative score #", i, ":", cumulative_score)
+        print(f"Run #: {i} -> {cumulative_score}")
         history.append(cumulative_score)

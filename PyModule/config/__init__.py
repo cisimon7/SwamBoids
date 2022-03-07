@@ -14,3 +14,4 @@ NOISE_SCALE = 0
 BOID_SIZE = 4
 NUM_THREADS = -1
 BOID_COUNT = 50
+PREDATOR_COUNT = 5  # Initial predator count

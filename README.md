@@ -1,13 +1,18 @@
 ### Ongoing Research project:
 
-Python3 version used: 3.9.10
+Python3 version used: 3.9
 
 ### Running code:
 
-To run the code, it is best to create a virtual environment in the PyModule Directory where the binaries would be automatically installed.
-Build the c++ code to generate the binaries, then run the python code.
+The above python version was used to when compiling the cpp wrappers.
+To use the available wrappers in the repository, it is best to use the same python version.
 
-### Description:
+A virtual environment was created and the wrappers were saved in the virtual environment with directory: "PyModule/venv/lib/python3.9/site-packages". This was done to be able to get autocompletion working in CLion IDE
+
+You can change the location by setting the LIBRARY_DIR flag in the CMakeList.txt file on line 8 to any location you want, but you would have to also reset the import directory in the "PyModule/binaries/__init__.py".
+Build the c++ code to generate the binaries in your desired location, then run the python code.
+
+### Project Description:
 
 The flocking behavior of swarms of birds can be modelled by creating a swarm of artificial births (boids) which react to observations by using simple control rules that increase cohesion,
 alignment and separation. Research in swarm robotics is attempting to design swarms which can perform additional functions such as coordinately exploring an unknown area to identify
