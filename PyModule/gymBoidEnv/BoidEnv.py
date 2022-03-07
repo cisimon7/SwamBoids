@@ -1,18 +1,12 @@
 import logging
-
-from gym.spaces import MultiDiscrete, MultiBinary
-import numpy as np
-from numpy.random import rand
-from typing import Tuple, List, Optional, Set, Dict
+from typing import Optional
 
 from gym import Env
 from gym.envs.registration import register
 
-from ..binaries import Simulation, Flock, KDTree, Boid, Vector2D
-from ..gymBoidEnv.Structs import RenderMode, np_vector2D, createObs, ObsvBoid, split, ActionBoid
-from ..config import FRAME_RATE, WINDOW_WIDTH, WINDOW_HEIGHT, PERCEPTION
-from ..config import MAX_SPEED, MAX_FORCE, ALIGNMENT_WEIGHT, COHESION_WEIGHT, SEPARATION_WEIGHT, ACCELERATION_SCALE, \
-    SEPARATION_DISTANCE, NOISE_SCALE, BOID_SIZE, NUM_THREADS, BOID_COUNT
+from ..binaries import Simulation, Flock, KDTree, new_simulation_env
+from ..config import *
+from ..gymBoidEnv.Structs import *
 
 RENDER_DELAY_MS = 300  # Delay during when rendering frame by frame
 BOID_COUNT_ = BOID_COUNT  # Initial boid count
@@ -35,7 +29,7 @@ class SwamBoidsEnv(Env):
         self.main_boid_id: Optional[int] = None  # To be set upon reset environment
 
         self.action_space = ActionBoid
-        self.observation_space = ObsvBoid
+        self.observation_space = ObservationBoid
 
     def get_flock(self) -> Flock:
         return self.simulation.flock
@@ -49,9 +43,9 @@ class SwamBoidsEnv(Env):
 
         m_boid = self.get_boid_by_id(self.main_boid_id)
 
-        pos = np_vector2D(m_boid.position)
-        vel = np_vector2D(m_boid.velocity)
-        acc = np_vector2D(m_boid.acceleration)
+        pos = cpp_vec_np(m_boid.position)
+        vel = cpp_vec_np(m_boid.velocity)
+        acc = cpp_vec_np(m_boid.acceleration)
 
         # current observation for main boid
         current_obs = np.c_[pos, vel, acc].ravel()
@@ -61,7 +55,7 @@ class SwamBoidsEnv(Env):
         (n_pos, n_vel, n_acc) = split(new_obs)
 
         # update main boid
-        c_pos = self.pos_const(n_pos)  # Toroidal world
+        c_pos = self.pos_constraint(n_pos)  # Toroidal world
         m_boid.position = Vector2D(c_pos[0], c_pos[1])
         m_boid.velocity = Vector2D(n_vel[0], n_vel[1])
         m_boid.acceleration = Vector2D(n_acc[0], n_acc[1])
@@ -97,7 +91,7 @@ class SwamBoidsEnv(Env):
             self.simulation.step_run(flock_size=BOID_COUNT_, pred_size=PREDATOR_COUNT,
                                      on_frame=(lambda: None), delay_ms=self.step_render_delay_ms)
         else:
-            # This simply uses the flocking algorithm
+            # This can be set to use the initial flocking algorithm or use the trained model to update flocks
             self.simulation.run(flock_size=BOID_COUNT_, pred_size=PREDATOR_COUNT, on_frame=(lambda: None))
 
     def flock_update_cpp(self):
@@ -131,7 +125,7 @@ class SwamBoidsEnv(Env):
 
         return tree.search(boids[boid_id], radius=PERCEPTION)
 
-    def pos_const(self, pos) -> np.ndarray:
+    def pos_constraint(self, pos) -> np.ndarray:
         # Taking into account the toroidal universe
         if pos[0] < 0: pos[0] += WINDOW_WIDTH
         if pos[1] < 0: pos[1] += WINDOW_HEIGHT
@@ -143,7 +137,7 @@ class SwamBoidsEnv(Env):
         boids: List[Boid] = self.get_flock().boids
         for boid in boids:
             if boid.boid_id != self.main_boid_id:  # main boid already updated by training
-                pos = self.pos_const(np.array([boid.position.x + UNIT_STEP, boid.position.y]))  # Toroidal universe
+                pos = self.pos_constraint(np.array([boid.position.x + UNIT_STEP, boid.position.y]))  # Toroidal universe
                 boid.position = Vector2D(pos[0], pos[1])
 
     def get_boid_by_id(self, id_) -> Boid:
@@ -155,25 +149,7 @@ class SwamBoidsEnv(Env):
                 self.simulation.flock.boids[i] = new_boid
 
 
-def new_simulation_env(frame_rate: int = FRAME_RATE) -> Simulation:
-    return Simulation(
-        window_width=WINDOW_WIDTH,
-        window_height=WINDOW_HEIGHT,
-        boid_size=BOID_SIZE,
-        max_speed=MAX_SPEED,
-        max_force=MAX_FORCE,
-        alignment_weight=ALIGNMENT_WEIGHT,
-        cohesion_weight=COHESION_WEIGHT,
-        separation_weight=SEPARATION_WEIGHT,
-        acceleration_scale=ACCELERATION_SCALE,
-        perception=PERCEPTION,
-        separation_distance=SEPARATION_DISTANCE,
-        noise_scale=NOISE_SCALE,
-        fullscreen=False,
-        light_scheme=True,
-        num_threads=NUM_THREADS,
-        frame_rate=frame_rate
-    )
+
 
 
 def obs_change(obs: np.ndarray, neighbors: List[Boid], action: ActionBoid) -> np.ndarray:

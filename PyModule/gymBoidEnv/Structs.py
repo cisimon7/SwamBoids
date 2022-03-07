@@ -13,7 +13,8 @@ import numpy as np
 
 from ..binaries import Vector2D
 
-ObsvBoid = Box(
+# A vector of 6 elements: 2 for Position, 2 for Velocity and last2 for Acceleration
+ObservationBoid = Box(
     low=np.array([0, 0, -np.inf, -np.inf, -np.inf, -np.inf], dtype=np.float32),
     high=np.array([WINDOW_WIDTH, WINDOW_HEIGHT, np.inf, np.inf, np.inf, np.inf], dtype=np.float32),
     dtype=np.float32
@@ -31,7 +32,7 @@ def split(obs_vec: np.ndarray):
     return tup
 
 
-def createObs(pos: np.ndarray, vel: np.ndarray, acc: np.ndarray):
+def create_obs(pos: np.ndarray, vel: np.ndarray, acc: np.ndarray):
     return dict(
         position=pos,
         velocity=vel,
@@ -39,7 +40,7 @@ def createObs(pos: np.ndarray, vel: np.ndarray, acc: np.ndarray):
     )
 
 
-def np_vector2D(vector: Vector2D) -> np.ndarray:
+def cpp_vec_np(vector: Vector2D) -> np.ndarray:
     return np.array([vector.x, vector.y])
 
 
@@ -59,7 +60,7 @@ class BoidObject:
     def from_boid(boid: Boid):
         return BoidObject(
             boid.boid_id,
-            np_vector2D(boid.position),
-            np_vector2D(boid.velocity),
-            np_vector2D(boid.acceleration)
+            cpp_vec_np(boid.position),
+            cpp_vec_np(boid.velocity),
+            cpp_vec_np(boid.acceleration)
         )

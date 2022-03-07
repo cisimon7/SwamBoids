@@ -22,8 +22,7 @@ if __name__ == '__main__':
             env.render()
             action = np.array([0, 1])  # Constantly move agent up
             observation, reward, done, info = env.step(action)
-            # print(observation[0])
             if done:
-                print("Episode finished after {} timesteps".format(t + 1))
+                print(f"Episode finished after {t + 1} time steps")
                 break
     env.close()
