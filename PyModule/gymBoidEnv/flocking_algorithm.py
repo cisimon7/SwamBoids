@@ -3,23 +3,6 @@ from PyModule.binaries import Boid, cpp_vec_np
 from PyModule.config import WINDOW_WIDTH, WINDOW_HEIGHT
 
 
-# Doesn't consider predators in implementation
-
-def calculate_reward(m_boid: Boid, neighbors: list[Boid]) -> float:
-    """
-    Reward function for boid
-    :param m_boid: Main boid whose reward function is being calculated
-    :param neighbors: List of boids within reachability radius of main boid
-    :return: reward score
-    """
-    cohesion_ = cohesion(m_boid, neighbors)
-    separation_ = separation(m_boid, neighbors)
-    alignment_ = alignment(m_boid, neighbors)
-
-    # the closer the reward to zero, the better the training
-    return (-1 * norm(cohesion_)) + (-1 * norm(separation_)) + (-1 * norm(alignment_))
-
-
 def cohesion(m_boid: Boid, neighbors: list[Boid]):
     """
     Calculates the root-squared difference between the center of the neighbor boids and the position of the m_boid

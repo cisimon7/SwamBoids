@@ -12,6 +12,7 @@ def obs_change(obs: np.ndarray, neighbors: list[Boid], action: BoidsAction) -> n
     :param action: predicted action to maximize reward for boid
     :return: new observation
     """
+    action /= (1 / 3) * np.linalg.norm(action)
     return np.r_[obs[:2] + action, obs[2:4] + action, obs[4:6] + action]
 
 

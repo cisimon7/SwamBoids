@@ -9,8 +9,8 @@ from stable_baselines3.common.monitor import Monitor
 from gymBoidEnv import SwamBoidsEnv, RenderMode
 
 LOG_DIR = "trained_models/flocking_algorithm"
-TIME_STEPS = 200  # int(2e8)
-EVAL_FREQ = 1_000
+TIME_STEPS = 3  # int(2e5)
+EVAL_FREQ = 20
 EVAL_EPISODES = 5
 
 
@@ -29,7 +29,7 @@ def train():
     eval_callback = EvalCallback(env, best_model_save_path=LOG_DIR, log_path=LOG_DIR, eval_freq=EVAL_FREQ,
                                  n_eval_episodes=EVAL_EPISODES)
     model.set_logger(logger)
-    model.learn(total_timesteps=TIME_STEPS, callback=[eval_callback])
+    model.learn(total_timesteps=TIME_STEPS, callback=[])
 
     model.save(os.path.join(LOG_DIR, "final_model"))  # probably never get to this point.
     env.close()

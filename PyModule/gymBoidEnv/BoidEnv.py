@@ -1,5 +1,5 @@
 from gym import Env
-from .reward_flocking_algorithm import *
+from .reward_function import *
 from .structs import *
 from .boid_utils import *
 from typing import Optional, List
@@ -89,11 +89,11 @@ class SwamBoidsEnv(Env):
 
         if self.render_mode.value == RenderMode.TRAINING.value:
             pass
-            # self.simulation.step_run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT,
-            #                          on_frame=(lambda: None), delay_ms=self.step_render_delay_ms)
         else:
+            self.simulation.step_run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT,
+                                     on_frame=(lambda: None), delay_ms=self.step_render_delay_ms)
             # This can be set to use the initial flocking algorithm or use the trained model to update flocks
-            self.simulation.run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT, on_frame=(lambda: None))
+            # self.simulation.run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT, on_frame=(lambda: None))
 
     def flock_update_cpp(self):
         """
@@ -128,14 +128,6 @@ class SwamBoidsEnv(Env):
             tree.insert(boid)
 
         return tree.search(boids[boid_id], radius=PERCEPTION)
-
-    # def update_other_bids(self):
-    #     # TODO(You can initially set them to act randomly without order, might be too difficult a problem)
-    #     boids: list[Boid] = self.get_flock().boids
-    #     for boid in boids:
-    #         if boid.boid_id != self.main_boid_id:  # main boid already updated by training
-    #             pos = pos_constraint(np.array([boid.position.x + UNIT_STEP, boid.position.y]))  # Toroidal universe
-    #             boid.position = Vector2D(pos[0], pos[1])
 
     def get_boid_by_id(self, id_) -> Boid:
         return list(filter(lambda boid: boid.boid_id == id_, self.get_flock().boids))[0]

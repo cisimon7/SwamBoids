@@ -1,6 +1,4 @@
-import numpy as np
 from gymBoidEnv import SwamBoidsEnv, RenderMode
-from config import BOID_COUNT, PREDATOR_COUNT, WINDOW_WIDTH, WINDOW_HEIGHT
 
 if __name__ == '__main__':
 
@@ -13,10 +11,9 @@ if __name__ == '__main__':
         for t in range(1_000):
             env.render()
 
-            # Constantly move all boids down
-            actions = np.asarray([*[np.random.randn(2) for _ in range(BOID_COUNT + PREDATOR_COUNT)]])
+            actions = env.action_space.sample()
             observation, reward, done, info = env.step(actions)
-            if done:
+            if done:  # TODO(done is always false)
                 print(f"Episode finished after {t + 1} time steps")
                 break
     env.close()

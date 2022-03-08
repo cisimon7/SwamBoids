@@ -27,3 +27,8 @@ large space region that enables them to identify dangers as quickly as possible.
 
 * Adaptive Algorithm: Reinforcement learning (PPO)
 * Library: Stable-baselines3 and OpenAI gym
+
+
+### Adding New Algorithm
+
+To add a new algorithm to be used for PPO, simply edit the definition for the "calculate_reward" function found in the directory "PyModule/gymBoidEnv/reward_function.py"

@@ -3,12 +3,14 @@ from datetime import datetime, timedelta
 
 from stable_baselines3 import PPO
 
-from gymBoidEnv import SwamBoidsEnv
+from gymBoidEnv import SwamBoidsEnv, RenderMode
 
 model_path = "trained_models/flocking_algorithm/final_model.zip"
 
 
 def rollout(env: SwamBoidsEnv, policy, render=False):
+    env.render_mode = RenderMode.EVALUATION
+    env.step_render_delay_ms = 5  # Delay between simulation
     obs = env.reset()
     total_reward = 0
 
