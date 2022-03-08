@@ -75,7 +75,7 @@ public:
 
     std::vector<double> benchmark(int flock_size, int num_steps);
 
-    void step_run(int flock_size, int pred_size = 0, const std::function<void()> &on_frame = []() {}, int delay_ms = 500);
+    void step_run(int flock_size, int pred_size = 0, const std::function<void()> &on_frame = []() {}, int delay_ms = 500, bool reset = true);
 
     float static get_random_float();
 };

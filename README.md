@@ -1,16 +1,19 @@
-### Ongoing Research project:
+# Research project:
 
-Python3 version used: 3.9
+### Credit
+Initial cpp flocking algorithm with simulation from: https://github.com/rystrauss/boids
 
 ### Running code:
 
-The above python version was used to when compiling the cpp wrappers.
+Python3 version used: 3.9
+
+The above python version was used when compiling the cpp wrappers.
 To use the available wrappers in the repository, it is best to use the same python version.
 
 A virtual environment was created and the wrappers were saved in the virtual environment with directory: "PyModule/venv/lib/python3.9/site-packages". This was done to be able to get autocompletion working in CLion IDE
 
 You can change the location by setting the LIBRARY_DIR flag in the CMakeList.txt file on line 8 to any location you want, but you would have to also reset the import directory in the "PyModule/binaries/__init__.py".
-Build the c++ code to generate the binaries in your desired location, then run the python code.
+Ofcourse you can also edit the cpp code and build to generate new the binaries that suit your own needs.
 
 ### Project Description:
 

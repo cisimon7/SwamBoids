@@ -1,8 +1,9 @@
 from gym import Env
-from .reward_function import *
 from .structs import *
 from .boid_utils import *
+from .reward_function import *
 from typing import Optional, List
+from datetime import datetime, timedelta
 from ..binaries import Simulation, Flock, KDTree, new_simulation_env
 
 RENDER_DELAY_MS = 300  # Delay during when rendering frame by frame
@@ -20,8 +21,8 @@ class SwamBoidsEnv(Env):
         self.step_render_delay_ms = RENDER_DELAY_MS
         self.simulation: Optional[Simulation] = None
 
-        # The main boid is the boid being trained in the simulation environment
-        # self.main_boid_id: Optional[int] = None  # To be set upon reset environment
+        self.start_time = datetime.now()
+        self.evaluation_duration = timedelta(seconds=0, minutes=1)
 
         self.action_space = ActionSpace
         self.observation_space = BoidObsSpace
@@ -67,8 +68,8 @@ class SwamBoidsEnv(Env):
             # calculate reward for single boid
             reward += calculate_reward(m_boid, neighbors)
 
-        # define done
-        done = False
+        # done define is set to true after a period of time (evaluation_duration)
+        done = ((datetime.now() - self.start_time).total_seconds()) > self.evaluation_duration.total_seconds()
 
         info = dict()
         return np.asarray(observation_array), reward, done, info
@@ -78,7 +79,7 @@ class SwamBoidsEnv(Env):
 
         # Populate simulation with specified number of boids by calling step_run
         self.simulation.step_run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT,
-                                 on_frame=(lambda: print("Initialized")), delay_ms=0)
+                                 on_frame=(lambda: print("Initialized")), delay_ms=0, reset=True)
 
         # Returns initial Observation for a boid
         return self.observation_space.sample()
@@ -87,11 +88,9 @@ class SwamBoidsEnv(Env):
         if mode != 'human':
             super(SwamBoidsEnv, self).render(mode=mode)  # Raises an exception
 
-        if self.render_mode.value == RenderMode.TRAINING.value:
-            pass
-        else:
+        if self.render_mode.value == RenderMode.EVALUATION.value:
             self.simulation.step_run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT,
-                                     on_frame=(lambda: None), delay_ms=self.step_render_delay_ms)
+                                     on_frame=(lambda: None), delay_ms=self.step_render_delay_ms, reset=False)
             # This can be set to use the initial flocking algorithm or use the trained model to update flocks
             # self.simulation.run(flock_size=BOID_COUNT, pred_size=PREDATOR_COUNT, on_frame=(lambda: None))
 

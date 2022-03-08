@@ -65,7 +65,7 @@ void Simulation::run(int flock_size, int pred_size, const std::function<void()> 
     std::exit(0);
 }
 
-void Simulation::step_run(int flock_size, int pred_size, const std::function<void()> &on_frame, int delay_ms) {
+void Simulation::step_run(int flock_size, int pred_size, const std::function<void()> &on_frame, int delay_ms, bool reset) {
     if (flock.size() == 0) {
         step_desktop = sf::VideoMode::getDesktopMode();
 
@@ -87,7 +87,7 @@ void Simulation::step_run(int flock_size, int pred_size, const std::function<voi
     }
 
     sf::Event event;
-    if (window.isOpen()) {
+    if (window.isOpen() && !reset) {
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();

@@ -46,7 +46,7 @@ PYBIND11_MODULE(SimulationModule, m) {
             .def_property("flock", &Simulation::getFlock, &Simulation::setFlock)
             .def_property("shapes", &Simulation::getShapes, &Simulation::setShapes)
             .def("run", &Simulation::run, py::arg("flock_size"), py::arg("pred_size")=0, py::arg("on_frame"), py::arg("ext_update") = false)
-            .def("step_run", &Simulation::step_run, py::arg("flock_size"), py::arg("pred_size")=0, py::arg("on_frame"), py::arg("delay_ms"))
+            .def("step_run", &Simulation::step_run, py::arg("flock_size"), py::arg("pred_size")=0, py::arg("on_frame"), py::arg("delay_ms"), py::arg("reset") = false)
 //            .def("add_boid", &Simulation::add_boid, py::arg("x"), py::arg("y"), py::arg("is_predator"), py::arg("with_shape") = true)
             .def("benchmark", &Simulation::benchmark, py::arg("flock_size"), py::arg("num_steps"));
 
