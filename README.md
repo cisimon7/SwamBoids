@@ -29,7 +29,7 @@ The scientific objective of this project is to verify whether evolving boids can
 large space region that enables them to identify dangers as quickly as possible.
 
 * Adaptive Algorithm: Reinforcement learning (PPO)
-* Library: Stable-baselines3 and OpenAI gym
+* Library: Stable-baselines3, OpenAI gym, PyTorch
 
 
 ### Adding New Algorithm

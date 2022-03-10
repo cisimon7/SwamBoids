@@ -4,7 +4,7 @@ from gymBoidEnv import new_simulation_env
 if __name__ == '__main__':
     simulation = new_simulation_env()
 
-    flock: Flock = simulation.flock  # Casting as Flock
+    flock: Flock = simulation.flock
     shapes = simulation.shapes
 
     FRAME_RATE = 60
@@ -24,8 +24,6 @@ if __name__ == '__main__':
             lambda boid__: tree.search(boid__, PERCEPTION),
             flock.boids
         ))
-
-        # print(neighbors)
 
         for (boid_, neighbors_) in zip(flock.boids, neighbors):
             boid_.update(neighbors_)
