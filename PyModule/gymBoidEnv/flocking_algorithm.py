@@ -1,72 +1,53 @@
 import numpy as np
 from PyModule.binaries import Boid, cpp_vec_np
-from PyModule.config import WINDOW_WIDTH, WINDOW_HEIGHT
+from PyModule.config import WINDOW_WIDTH, WINDOW_HEIGHT, PERCEPTION
 
 
-def cohesion(m_boid: Boid, neighbors: list[Boid]):
-    """
-    Calculates the root-squared difference between the center of the neighbor boids and the position of the m_boid
-    :param m_boid:
-    :param neighbors:
-    :return: error
-    """
+# PERCEPTION is the maximum distance between a boid and any of its neighbor boid
+
+def cohesion(m_boid: Boid, neighbors: list[Boid]) -> np.ndarray:
     if len(neighbors) == 0:
         return np.zeros(2)
     else:
-        center = cal_center(neighbors)
+        positions = list(map(lambda boid_: cpp_vec_np(boid_.position), neighbors))
+        center = np.sum(np.asarray(positions), axis=0) / len(positions)
+
         boid_pos = cpp_vec_np(m_boid.position)
-        dis_to_center = boid_pos - center
+        dis_to_center = toroidal_difference(boid_pos, center) / PERCEPTION
         return dis_to_center
 
 
-def separation(m_boid: Boid, neighbors: list[Boid]):
+def separation(m_boid: Boid, neighbors: list[Boid]) -> np.ndarray:
     if len(neighbors) == 0:
         return np.zeros(2)
     else:
         distances = list(map(
-            lambda boid_: toroidal_distance(cpp_vec_np(boid_.position), cpp_vec_np(m_boid.position)),
+            lambda boid_: toroidal_difference(cpp_vec_np(boid_.position), cpp_vec_np(m_boid.position)) / PERCEPTION,
             neighbors
         ))
 
-        sum_dist = np.sum(np.asarray(distances), axis=0)
+        sum_dist = np.sum(np.asarray(distances), axis=0) / len(neighbors)
         return sum_dist
 
 
-def alignment(m_boid: Boid, neighbors: list[Boid]):
+def alignment(m_boid: Boid, neighbors: list[Boid]) -> np.ndarray:
     if len(neighbors) == 0:
         return np.zeros(2)
     else:
         velocities = list(map(lambda boid_: cpp_vec_np(boid_.velocity), neighbors))
-        neighbors_avg_direction = np.sum(velocities, axis=0)
-        avg_direction = neighbors_avg_direction
-        boid_direction = (cpp_vec_np(m_boid.velocity))
+
+        # Normalize velocity to get direction
+        directions = np.asarray([normalize(velocity) for velocity in velocities])
+        avg_direction = normalize(np.sum(directions, axis=0))
+
+        boid_direction = normalize(cpp_vec_np(m_boid.velocity))
 
         align_diff = boid_direction - avg_direction
 
-        return align_diff
+        return align_diff / 2
 
 
-def square_error(vec1: np.ndarray, vec2: np.ndarray):
-    """
-    Root-Squared error between two vectors
-    :param vec1:
-    :param vec2:
-    :return:
-    """
-    return np.sqrt(np.sum(np.square(vec1 - vec2)))
-
-
-def cal_center(neighbors: list[Boid]):
-    """
-    Finds the center of the boids simply by taking the mean of the positions
-    :param neighbors: list of boids
-    :return: mean of positions
-    """
-    positions = list(map(lambda boid_: cpp_vec_np(boid_.position), neighbors))
-    return np.sum(np.asarray(positions), axis=0) / len(positions)
-
-
-def toroidal_distance(vec1: np.ndarray, vec2: np.ndarray):
+def toroidal_difference(vec1: np.ndarray, vec2: np.ndarray) -> np.ndarray:
     assert (vec1.shape == vec2.shape == (2,)), "Unequal vector length"
     (dx, dy) = vec1 - vec2
 
@@ -79,7 +60,7 @@ def toroidal_distance(vec1: np.ndarray, vec2: np.ndarray):
     return np.array([dx, dy])
 
 
-def normalize(vec: np.ndarray):
+def normalize(vec: np.ndarray) -> np.ndarray:
     mag = np.linalg.norm(vec)
     if mag == 0:
         return vec
@@ -97,6 +78,9 @@ def norm(vec: np.ndarray):
 #     print(np.linalg.norm(np.ones(2)))
 #     print(np.ones(2).shape)
 #     print(np.ones(2) / norm(np.zeros(2)))
+#
+#     vectors = np.ones((3, 2))
+#     print(np.sum(vectors, axis=0) / len(vectors))
 
 # Explanation of flocking algorithm:
 # https://medium.com/swlh/boids-a-simple-way-to-simulate-how-birds-flock-in-processing-69057930c229

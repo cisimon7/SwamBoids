@@ -1,18 +1,14 @@
-import datetime
+from datetime import datetime, timedelta
 import os
 import time
 
-import numpy as np
 from stable_baselines3 import PPO
-from stable_baselines3.common.callbacks import EvalCallback, BaseCallback
+from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.logger import configure
-from stable_baselines3.common.monitor import Monitor, load_results
-from stable_baselines3.common.results_plotter import ts2xy
-from stable_baselines3.common.vec_env import SubprocVecEnv
-
+from stable_baselines3.common.monitor import Monitor
 from gymBoidEnv import SwamBoidsEnv, RenderMode
 
-LOG_DIR = "trained_models/flocking_algorithm"
+LOG_DIR = "trained_models/flocking_algorithm_4"
 TIME_STEPS = int(2e6)
 EVAL_FREQ = 1_000
 EVAL_EPISODES = 5
@@ -23,6 +19,8 @@ class BoidsEvalCallback(EvalCallback):
         super(BoidsEvalCallback, self).__init__(*args, **kwargs)
 
     def _on_step(self) -> bool:
+        if self.num_timesteps % self.eval_freq == 0:
+            print(f"Current best mean reward: {self.best_mean_reward}")
         return super(BoidsEvalCallback, self)._on_step()
 
 
@@ -31,7 +29,7 @@ def train():
 
     swam_env = SwamBoidsEnv()
     swam_env.render_mode = RenderMode.TRAINING
-    swam_env.evaluation_duration = datetime.timedelta(seconds=0, minutes=1)
+    swam_env.evaluation_duration = timedelta(seconds=0, minutes=1)
     swam_env.step_render_delay_ms = 5  # Delay between simulation
 
     env = Monitor(swam_env, LOG_DIR)
@@ -54,7 +52,7 @@ def train():
         log_path=LOG_DIR,
         eval_freq=EVAL_FREQ,
         n_eval_episodes=EVAL_EPISODES,
-        deterministic=False
+        deterministic=True
     )
 
     model.set_logger(logger)

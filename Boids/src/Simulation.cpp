@@ -91,11 +91,13 @@ void Simulation::step_run(int flock_size, int pred_size, const std::function<voi
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
+                std::exit(0);
             }
         }
+        if (handle_input()) return;
         render(on_frame, true);
         sf::sleep(sf::milliseconds(delay_ms));
-//        window.close();
+        // window.close();
     }
 }
 

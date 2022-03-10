@@ -2,7 +2,7 @@ import argparse
 from stable_baselines3 import PPO
 from gymBoidEnv import SwamBoidsEnv, RenderMode
 
-model_path = "trained_models/flocking_algorithm1/final_model.zip"
+model_path = "trained_models/flocking_algorithm_3/best_model.zip"
 
 
 def rollout(env: SwamBoidsEnv, policy, render=False):
@@ -13,7 +13,6 @@ def rollout(env: SwamBoidsEnv, policy, render=False):
 
     done = False
 
-    # run for a period of time
     while not done:
         action, _states = policy.predict(obs, deterministic=True)
         obs, reward, done, _ = env.step(action)

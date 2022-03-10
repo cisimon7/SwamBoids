@@ -9,9 +9,9 @@ def calculate_reward(m_boid: Boid, neighbors: list[Boid]) -> float:
     :return: reward score
     """
     # TODO(Doesn't consider predators in implementation)
-    cohesion_ = cohesion(m_boid, neighbors)
-    separation_ = separation(m_boid, neighbors)
-    alignment_ = alignment(m_boid, neighbors)
+    cohesion_vector = cohesion(m_boid, neighbors)
+    separation_vector = separation(m_boid, neighbors)
+    alignment_vector = alignment(m_boid, neighbors)
 
     # the closer the reward to zero, the better the training
-    return (-1 * norm(cohesion_)) + (-1 * norm(separation_)) + (-1 * norm(alignment_))
+    return - norm(cohesion_vector) - norm(separation_vector) - norm(alignment_vector)

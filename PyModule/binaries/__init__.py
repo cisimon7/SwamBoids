@@ -1,5 +1,5 @@
 import numpy as np
-from ..config import *
+from PyModule.config import *
 from bindings.BoidModule import *
 from bindings.FlockModule import *
 from bindings.KDTreeModule import *
