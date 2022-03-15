@@ -14,4 +14,4 @@ def calculate_reward(m_boid: Boid, neighbors: list[Boid]) -> float:
     alignment_vector = alignment(m_boid, neighbors)
 
     # the closer the reward to zero, the better the training
-    return - norm(cohesion_vector) - norm(separation_vector) - norm(alignment_vector)
+    return -(cohesion_vector + separation_vector + alignment_vector)

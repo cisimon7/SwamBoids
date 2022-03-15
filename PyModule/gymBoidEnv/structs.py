@@ -5,17 +5,17 @@ from gym.spaces import Box
 from PyModule.binaries import Boid
 from dataclasses import dataclass
 from ..binaries import cpp_vec_np
+from ..config import MAX_FORCE
 from PyModule.config import BOID_COUNT, PREDATOR_COUNT, WINDOW_WIDTH, WINDOW_HEIGHT
 
 # TODO(set low and high to be maximum acceleration per second)
-max_acc = 1
+max_acc = MAX_FORCE
 
 # A vector of 6 elements: 2 for Position, 2 for Velocity and last2 for Acceleration
 # Single Observation space for a boid
 BoidObsSpace = Box(
     low=np.array(
-        # TODO(Limit to velocity and acceleration as imposed by physical device limit)
-        [[0, 0, -np.inf, -max_acc, -max_acc, -max_acc] for _ in range(BOID_COUNT + PREDATOR_COUNT)],
+        [[0, 0, -max_acc, -max_acc, -max_acc, -max_acc] for _ in range(BOID_COUNT + PREDATOR_COUNT)],
         dtype=np.float32
     ),
     high=np.array(

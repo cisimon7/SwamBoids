@@ -4,6 +4,7 @@ from .boid_utils import *
 from .reward_function import *
 from typing import Optional, List
 from datetime import datetime, timedelta
+from ..config import FRAME_RATE
 from ..binaries import Simulation, Flock, KDTree, new_simulation_env
 
 RENDER_DELAY_MS = 300  # Delay during when rendering frame by frame

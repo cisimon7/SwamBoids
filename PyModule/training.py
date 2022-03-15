@@ -7,8 +7,9 @@ from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.logger import configure
 from stable_baselines3.common.monitor import Monitor
 from gymBoidEnv import SwamBoidsEnv, RenderMode
+from config import BOID_COUNT, PREDATOR_COUNT
 
-LOG_DIR = "trained_models/flocking_algorithm_4"
+LOG_DIR = f"trained_models/flocking_algorithm_{BOID_COUNT + PREDATOR_COUNT}_1"
 TIME_STEPS = int(2e6)
 EVAL_FREQ = 1_000
 EVAL_EPISODES = 5

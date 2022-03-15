@@ -1,13 +1,14 @@
 import argparse
 from stable_baselines3 import PPO
 from gymBoidEnv import SwamBoidsEnv, RenderMode
+from config import BOID_COUNT, PREDATOR_COUNT
 
-model_path = "trained_models/flocking_algorithm_3/best_model.zip"
+model_path = f"trained_models/flocking_algorithm_{BOID_COUNT + PREDATOR_COUNT}_1/best_model.zip"
 
 
-def rollout(env: SwamBoidsEnv, policy, render=False):
+def rollout(env: SwamBoidsEnv, policy, render=True):
     env.render_mode = RenderMode.EVALUATION
-    env.step_render_delay_ms = 5  # Delay between simulation
+    env.step_render_delay_ms = 100  # Delay between simulation
     obs = env.reset()
     total_reward = 0
 

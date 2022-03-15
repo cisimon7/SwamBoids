@@ -5,34 +5,44 @@ from PyModule.config import WINDOW_WIDTH, WINDOW_HEIGHT, PERCEPTION
 
 # PERCEPTION is the maximum distance between a boid and any of its neighbor boid
 
-def cohesion(m_boid: Boid, neighbors: list[Boid]) -> np.ndarray:
+def cohesion(m_boid: Boid, neighbors: list[Boid]) -> float:
     if len(neighbors) == 0:
-        return np.zeros(2)
+        return norm(np.zeros(2))
     else:
         positions = list(map(lambda boid_: cpp_vec_np(boid_.position), neighbors))
         center = np.sum(np.asarray(positions), axis=0) / len(positions)
 
         boid_pos = cpp_vec_np(m_boid.position)
         dis_to_center = toroidal_difference(boid_pos, center) / PERCEPTION
-        return dis_to_center
+        return norm(dis_to_center)
 
 
-def separation(m_boid: Boid, neighbors: list[Boid]) -> np.ndarray:
+def separation(m_boid: Boid, neighbors: list[Boid]) -> float:
     if len(neighbors) == 0:
-        return np.zeros(2)
+        return norm(np.zeros(2))
     else:
         distances = list(map(
-            lambda boid_: toroidal_difference(cpp_vec_np(boid_.position), cpp_vec_np(m_boid.position)) / PERCEPTION,
+            lambda boid_: toroidal_difference(cpp_vec_np(boid_.position), cpp_vec_np(m_boid.position)),
             neighbors
         ))
 
-        sum_dist = np.sum(np.asarray(distances), axis=0) / len(neighbors)
-        return sum_dist
+        # Error
+        error_distances = list(map(
+            lambda dist: (dist - PERCEPTION * normalize(dist)) / PERCEPTION,
+            distances
+        ))
+
+        error = list(map(
+            lambda err: norm(err),
+            error_distances
+        ))
+
+        return np.sum(error)
 
 
-def alignment(m_boid: Boid, neighbors: list[Boid]) -> np.ndarray:
+def alignment(m_boid: Boid, neighbors: list[Boid]) -> float:
     if len(neighbors) == 0:
-        return np.zeros(2)
+        return norm(np.zeros(2))
     else:
         velocities = list(map(lambda boid_: cpp_vec_np(boid_.velocity), neighbors))
 
@@ -44,7 +54,7 @@ def alignment(m_boid: Boid, neighbors: list[Boid]) -> np.ndarray:
 
         align_diff = boid_direction - avg_direction
 
-        return align_diff / 2
+        return norm(align_diff / 2)
 
 
 def toroidal_difference(vec1: np.ndarray, vec2: np.ndarray) -> np.ndarray:

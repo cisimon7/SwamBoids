@@ -1,5 +1,5 @@
 import numpy as np
-from ..config import *
+from ..config import MAX_SPEED, WINDOW_HEIGHT, WINDOW_WIDTH
 from .structs import BoidsAction
 from ..binaries import Boid, Vector2D, cpp_vec_np
 
@@ -13,7 +13,14 @@ def obs_change(obs: np.ndarray, neighbors: list[Boid], action: BoidsAction) -> n
     :return: new observation
     """
     action /= (1 / 3) * np.linalg.norm(action)
-    return np.r_[obs[:2] + action, obs[2:4] + action, obs[4:6] + action]
+    # return np.r_[obs[:2] + action, obs[2:4] + action, obs[4:6] + action]
+    new_vel = limit(obs[2:4] + action, MAX_SPEED)
+    result = np.r_[
+        pos_constraint(obs[:2] + new_vel),
+        new_vel,
+        np.zeros(2)
+    ]
+    return result
 
 
 def pos_constraint(position) -> np.ndarray:
@@ -69,3 +76,15 @@ def split_to_obs(obs_vec: np.ndarray):
     """
     tup = (obs_vec[:2], obs_vec[2:4], obs_vec[4:])
     return tup
+
+
+def limit(speed: np.ndarray, max_speed) -> np.ndarray:
+    x, y = speed
+    mag = np.linalg.norm(speed)
+    if mag > max_speed:
+        x *= max_speed / mag
+        y *= max_speed / mag
+
+    return np.array([x, y])
+
+
