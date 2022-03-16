@@ -7,7 +7,7 @@ from PyModule.config import WINDOW_WIDTH, WINDOW_HEIGHT, PERCEPTION
 
 def cohesion(m_boid: Boid, neighbors: list[Boid]) -> float:
     if len(neighbors) == 0:
-        return norm(np.zeros(2))
+        return -10  # norm(np.zeros(2))
     else:
         positions = list(map(lambda boid_: cpp_vec_np(boid_.position), neighbors))
         center = np.sum(np.asarray(positions), axis=0) / len(positions)
@@ -19,7 +19,7 @@ def cohesion(m_boid: Boid, neighbors: list[Boid]) -> float:
 
 def separation(m_boid: Boid, neighbors: list[Boid]) -> float:
     if len(neighbors) == 0:
-        return norm(np.zeros(2))
+        return -10  # norm(np.zeros(2))
     else:
         distances = list(map(
             lambda boid_: toroidal_difference(cpp_vec_np(boid_.position), cpp_vec_np(m_boid.position)),
@@ -42,7 +42,7 @@ def separation(m_boid: Boid, neighbors: list[Boid]) -> float:
 
 def alignment(m_boid: Boid, neighbors: list[Boid]) -> float:
     if len(neighbors) == 0:
-        return norm(np.zeros(2))
+        return -10  # norm(np.zeros(2))
     else:
         velocities = list(map(lambda boid_: cpp_vec_np(boid_.velocity), neighbors))
 

@@ -1,16 +1,18 @@
 import argparse
+
+import numpy as np
 from stable_baselines3 import PPO
 from gymBoidEnv import SwamBoidsEnv, RenderMode
-from config import BOID_COUNT, PREDATOR_COUNT
 
-model_path = f"trained_models/flocking_algorithm_{BOID_COUNT + PREDATOR_COUNT}_1/best_model.zip"
+model_path = f"trained_models/flocking_algorithm_one_for_all/best_model.zip"
 
 
 def rollout(env: SwamBoidsEnv, policy, render=True):
     env.render_mode = RenderMode.EVALUATION
-    env.step_render_delay_ms = 100  # Delay between simulation
+    env.best_model = policy
+    env.step_render_delay_ms = 50  # Delay between simulation
     obs = env.reset()
-    total_reward = 0
+    total_reward = []
 
     done = False
 
@@ -18,12 +20,12 @@ def rollout(env: SwamBoidsEnv, policy, render=True):
         action, _states = policy.predict(obs, deterministic=True)
         obs, reward, done, _ = env.step(action)
 
-        total_reward += reward
+        total_reward.append(reward)
 
         if render:
             env.render()
 
-    return total_reward
+    return np.average(total_reward)
 
 
 if __name__ == '__main__':

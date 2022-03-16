@@ -4,8 +4,9 @@ if __name__ == '__main__':
     # Test Environment
 
     env = SwamBoidsEnv()
+    env.best_model = None
     env.render_mode = RenderMode.EVALUATION
-    env.step_render_delay_ms = 100  # Delay between simulation
+    env.step_render_delay_ms = 10  # Delay between simulation
 
     for i_episode in range(1):
         env.reset()

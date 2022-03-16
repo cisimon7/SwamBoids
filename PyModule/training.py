@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import os
 import time
+from shutil import copyfile
 
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import EvalCallback
@@ -9,26 +10,42 @@ from stable_baselines3.common.monitor import Monitor
 from gymBoidEnv import SwamBoidsEnv, RenderMode
 from config import BOID_COUNT, PREDATOR_COUNT
 
-LOG_DIR = f"trained_models/flocking_algorithm_{BOID_COUNT + PREDATOR_COUNT}_1"
+LOG_DIR = f"trained_models/flocking_algorithm_one_for_all"
 TIME_STEPS = int(2e6)
 EVAL_FREQ = 1_000
 EVAL_EPISODES = 5
 
 
 class BoidsEvalCallback(EvalCallback):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, main_env, *args, **kwargs):
         super(BoidsEvalCallback, self).__init__(*args, **kwargs)
+        self.old_best = self.best_mean_reward
+        self.main_envs = main_env
 
     def _on_step(self) -> bool:
         if self.num_timesteps % self.eval_freq == 0:
             print(f"Current best mean reward: {self.best_mean_reward}")
+
+        if self.best_mean_reward > self.old_best:
+            backup_file = os.path.join(LOG_DIR, "agent:" + str(round(self.best_mean_reward, 4)) + ".zip")
+            source_file = os.path.join(LOG_DIR, f"best_model.zip")
+            copyfile(source_file, backup_file)
+
+            self.main_envs.best_model = self.model
+
+            # for env in self.main_envs:
+            #     env.best_model = self.model
+
+            print(f"New Agent Variant Added")
+            self.old_best = self.best_mean_reward
+
         return super(BoidsEvalCallback, self)._on_step()
 
 
 def train():
     logger = configure(folder=LOG_DIR, format_strings=["stdout", "csv", "tensorboard"])
 
-    swam_env = SwamBoidsEnv()
+    swam_env = SwamBoidsEnv(best_model_dir=LOG_DIR)
     swam_env.render_mode = RenderMode.TRAINING
     swam_env.evaluation_duration = timedelta(seconds=0, minutes=1)
     swam_env.step_render_delay_ms = 5  # Delay between simulation
@@ -48,12 +65,13 @@ def train():
     )
 
     eval_callback = BoidsEvalCallback(
+        main_env=model.get_env(),
         eval_env=env,
         best_model_save_path=LOG_DIR,
         log_path=LOG_DIR,
         eval_freq=EVAL_FREQ,
         n_eval_episodes=EVAL_EPISODES,
-        deterministic=True
+        deterministic=False
     )
 
     model.set_logger(logger)

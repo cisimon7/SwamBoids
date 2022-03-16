@@ -13,5 +13,5 @@ SEPARATION_DISTANCE = 20
 NOISE_SCALE = 0
 BOID_SIZE = 4
 NUM_THREADS = -1
-BOID_COUNT = 5
-PREDATOR_COUNT = 2  # Initial predator count
+BOID_COUNT = 50
+PREDATOR_COUNT = 10  # Initial predator count

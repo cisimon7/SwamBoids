@@ -115,9 +115,9 @@ void Simulation::add_boid(float x, float y, bool is_predator, bool with_shape) {
         sf::CircleShape shape(is_predator ? boid_size * 1.3f : boid_size, 3);
 
         shape.setPosition(sf::Vector2f(x, y));
-        shape.setFillColor(is_predator ? sf::Color::Red : (light_scheme ? sf::Color::Black : sf::Color::Green));
-        shape.setOutlineColor(light_scheme ? sf::Color::White : sf::Color::Black);
-        shape.setOutlineThickness(1);
+        shape.setFillColor(boid_id==0 ? sf::Color::Blue : (is_predator ? sf::Color::Red : (light_scheme ? sf::Color::Black : sf::Color::Green)));
+        shape.setOutlineColor(boid_id == 0 ? sf::Color::Blue : (light_scheme ? sf::Color::White : sf::Color::Black));
+        shape.setOutlineThickness(boid_id == 0 ? 1.2 : 1);
 
         shapes.emplace_back(shape);
     }

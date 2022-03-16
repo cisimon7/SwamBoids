@@ -20,7 +20,7 @@ def obs_change(obs: np.ndarray, neighbors: list[Boid], action: BoidsAction) -> n
         new_vel,
         np.zeros(2)
     ]
-    return result
+    return np.asarray(result, dtype=np.float32)
 
 
 def pos_constraint(position) -> np.ndarray:
