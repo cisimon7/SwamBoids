@@ -68,4 +68,4 @@ if __name__ == '__main__':
     train()
     end_time = time.perf_counter()
 
-    print(f"Duration: {end_time - start_time}")
+    print(f"Duration:: {end_time - start_time}")
